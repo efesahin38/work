@@ -10,30 +10,22 @@ app.secret_key = os.getenv('SECRET_KEY', 'change-this-in-production')
 CORS(app)
 
 # ==================== DATABASE CONFIG ====================
-SUPABASE_DB_CONFIG = {
-    "host": "db.ubixgmevwfmqstujzyxr.supabase.co",
-    "database": "postgres",
-    "user": "postgres",
-    "password": os.getenv('DB_PASSWORD'),
-    "port": 5432,
-    "sslmode": "require",
-    "connect_timeout": 10,
-    "options": "-c statement_timeout=30000"
-}
-
 def get_conn():
     """Veritabanı bağlantısı oluştur"""
     try:
-        return psycopg.connect(
-            host=SUPABASE_DB_CONFIG['host'],
-            dbname=SUPABASE_DB_CONFIG['database'],
-            user=SUPABASE_DB_CONFIG['user'],
-            password=SUPABASE_DB_CONFIG['password'],
-            port=SUPABASE_DB_CONFIG['port'],
-            sslmode=SUPABASE_DB_CONFIG['sslmode'],
-            connect_timeout=SUPABASE_DB_CONFIG['connect_timeout']
+        conn = psycopg.connect(
+            host="db.ubixgmevwfmqstujzyxr.supabase.co",
+            dbname="postgres",
+            user="postgres",
+            password=os.getenv('DB_PASSWORD'),
+            port=5432,
+            sslmode="require",
+            connect_timeout=30,
+            keepalives=1,
+            keepalives_idle=30
         )
-    except psycopg.OperationalError as e:
+        return conn
+    except Exception as e:
         print(f"❌ Database connection error: {str(e)}")
         raise
 
@@ -804,4 +796,3 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
-
