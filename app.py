@@ -342,6 +342,7 @@ def index():
 </html>"""
 
 @app.route('/api/signup', methods=['POST'])
+def signup():
     try:
         data = request.json
         name = data.get('name', '').strip()
@@ -398,6 +399,7 @@ def index():
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
 
 @app.route('/api/login', methods=['POST'])
+def login():
     try:
         data = request.json
         email = data.get('email', '').strip()
@@ -682,7 +684,7 @@ def check_in():
             conn.close()
             return jsonify({
                 'success': False,
-                'message': '❌ HATA!\\nPersonel bulunamadı!',
+                'message': '❌ HATA!\nPersonel bulunamadı!',
                 'type': 'error'
             }), 404
 
@@ -715,7 +717,7 @@ def check_in():
 
             return jsonify({
                 'success': True,
-                'message': f'👋 GÖRÜŞÜRÜZ!\\n{emp_name}\\n🕐 Çıkış: {now_time}\\n⏱️ {duration}',
+                'message': f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ {duration}',
                 'type': 'success'
             })
         else:
@@ -732,7 +734,7 @@ def check_in():
                 conn.close()
                 return jsonify({
                     'success': False,
-                    'message': f'⚠️ DİKKAT!\\n{emp_name}\\n{elsewhere[0]} bölgesinde\\naçık girişiniz var!\\nÖnce çıkış yapınız.',
+                    'message': f'⚠️ DİKKAT!\n{emp_name}\n{elsewhere[0]} bölgesinde\naçık girişiniz var!\nÖnce çıkış yapınız.',
                     'type': 'warning'
                 }), 409
 
@@ -748,7 +750,7 @@ def check_in():
 
             return jsonify({
                 'success': True,
-                'message': f'✅ HOŞ GELDIN!\\n{emp_name}\\n🕐 Giriş: {now_time}\\n📍 {location}',
+                'message': f'✅ HOŞ GELDIN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}',
                 'type': 'success'
             })
 
