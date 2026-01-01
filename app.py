@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg
-from psycopg import sql
 from datetime import datetime, timedelta
 import hashlib
 
@@ -12,26 +11,28 @@ CORS(app)
 
 # ==================== DATABASE CONFIG ====================
 SUPABASE_DB_CONFIG = {
-    "host": os.getenv('DB_HOST'),
-    "database": os.getenv('DB_NAME', 'postgres'),
-    "user": os.getenv('DB_USER'),
+    "host": "db.ubixgmevwfmqstujzyxr.supabase.co",
+    "database": "postgres",
+    "user": "postgres",
     "password": os.getenv('DB_PASSWORD'),
-    "port": int(os.getenv('DB_PORT', 5432)),
-    "sslmode": os.getenv('DB_SSLMODE', 'require'),
+    "port": 5432,
+    "sslmode": "require",
     "connect_timeout": 10
 }
-
-# Validate environment variables
-required_vars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD']
-missing = [v for v in required_vars if not os.getenv(v)]
-if missing:
-    print(f"⚠️  Missing environment variables: {', '.join(missing)}")
 
 def get_conn():
     """Veritabanı bağlantısı oluştur"""
     try:
-        return psycopg2.connect(**SUPABASE_DB_CONFIG)
-    except psycopg2.OperationalError as e:
+        return psycopg.connect(
+            host=SUPABASE_DB_CONFIG['host'],
+            database=SUPABASE_DB_CONFIG['database'],
+            user=SUPABASE_DB_CONFIG['user'],
+            password=SUPABASE_DB_CONFIG['password'],
+            port=SUPABASE_DB_CONFIG['port'],
+            sslmode=SUPABASE_DB_CONFIG['sslmode'],
+            connect_timeout=SUPABASE_DB_CONFIG['connect_timeout']
+        )
+    except psycopg.OperationalError as e:
         print(f"❌ Database connection error: {str(e)}")
         raise
 
@@ -802,4 +803,3 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
-
