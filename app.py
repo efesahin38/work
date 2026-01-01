@@ -401,35 +401,40 @@ def login():
         if not email or not password:
             return jsonify({'success': False, 'message': 'Email ve şifre gerekli!'}), 400
 
-        conn = get_conn()
-        cur = conn.cursor()
+        try:
+            conn = get_conn()
+            cur = conn.cursor()
 
-        cur.execute("SELECT id, name, password, employee_id FROM users WHERE email = %s", (email,))
-        user = cur.fetchone()
+            cur.execute("SELECT id, name, password, employee_id FROM users WHERE email = %s", (email,))
+            user = cur.fetchone()
 
-        if not user:
+            if not user:
+                cur.close()
+                conn.close()
+                return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+
+            user_id, name, hashed_password, employee_id = user
+
+            if hash_password(password) != hashed_password:
+                cur.close()
+                conn.close()
+                return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
 
-        user_id, name, hashed_password, employee_id = user
-
-        if hash_password(password) != hashed_password:
-            cur.close()
-            conn.close()
-            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
-
-        cur.close()
-        conn.close()
-
-        return jsonify({
-            'success': True,
-            'message': 'Giriş başarılı!',
-            'user_id': user_id,
-            'user_name': name,
-            'employee_id': employee_id
-        })
+            return jsonify({
+                'success': True,
+                'message': 'Giriş başarılı!',
+                'user_id': user_id,
+                'user_name': name,
+                'employee_id': employee_id
+            })
+        except Exception as db_error:
+            print(f"❌ Database error in login: {str(db_error)}")
+            return jsonify({'success': False, 'message': f'Database error: {str(db_error)}'}), 500
     except Exception as e:
+        print(f"❌ Login error: {str(e)}")
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
 
 # ==================== DASHBOARD PAGE ====================
@@ -788,12 +793,11 @@ def server_error(e):
 
 if __name__ == '__main__':
     print("🚀 Uygulama başlatılıyor...")
-    # if init_db():
-    #     print("✅ Veritabanı hazır")
-    # else:
-    #     print("⚠️  Veritabanı bağlantısında sorun olabilir")
+    if init_db():
+        print("✅ Veritabanı hazır")
+    else:
+        print("⚠️  Veritabanı bağlantısında sorun olabilir")
     
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
-
