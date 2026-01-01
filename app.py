@@ -25,7 +25,7 @@ def get_conn():
     try:
         return psycopg.connect(
             host=SUPABASE_DB_CONFIG['host'],
-            database=SUPABASE_DB_CONFIG['database'],
+            dbname=SUPABASE_DB_CONFIG['database'],
             user=SUPABASE_DB_CONFIG['user'],
             password=SUPABASE_DB_CONFIG['password'],
             port=SUPABASE_DB_CONFIG['port'],
@@ -341,7 +341,8 @@ def index():
 </body>
 </html>"""
 
-@app.route('/api/signup', methods=['POST'])
+@app.route('/api/login', methods=['GET', 'POST'])
+@app.route('/api/signup', methods=['GET', 'POST'])
 def signup():
     try:
         data = request.json
@@ -398,7 +399,7 @@ def signup():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
 
-@app.route('/api/login', methods=['POST'])
+@app.route('/api/login', methods=['GET', 'POST'])
 def login():
     try:
         data = request.json
