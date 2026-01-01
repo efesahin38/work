@@ -788,11 +788,12 @@ def server_error(e):
 
 if __name__ == '__main__':
     print("🚀 Uygulama başlatılıyor...")
-    if init_db():
-        print("✅ Veritabanı hazır")
-    else:
-        print("⚠️  Veritabanı bağlantısında sorun olabilir")
+    # if init_db():
+    #     print("✅ Veritabanı hazır")
+    # else:
+    #     print("⚠️  Veritabanı bağlantısında sorun olabilir")
     
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
