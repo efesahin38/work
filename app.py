@@ -16,11 +16,14 @@ CORS(app)
 def get_conn():
     """Veritabanı bağlantısı oluştur"""
     try:
-        # Tam connection string'i ortam değişkeninden al
+        # Render'da tanımladığımız DATABASE_URL ortam değişkenini al
         conn_string = os.getenv('DATABASE_URL')
         
+        if not conn_string:
+            raise Exception("DATABASE_URL ortam değişkeni tanımlı değil! Render Environment'ta eklediğinden emin ol.")
+        
         conn = psycopg.connect(
-            conn_string,
+            conn_string,                # Tüm bilgiler (host, user, password, dbname, port) burada
             sslmode="require",
             connect_timeout=20,
             keepalives=1,
@@ -803,6 +806,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
