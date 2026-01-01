@@ -17,7 +17,8 @@ SUPABASE_DB_CONFIG = {
     "password": os.getenv('DB_PASSWORD'),
     "port": 5432,
     "sslmode": "require",
-    "connect_timeout": 10
+    "connect_timeout": 10,
+    "options": "-c statement_timeout=30000"
 }
 
 def get_conn():
@@ -803,3 +804,4 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
