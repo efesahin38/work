@@ -13,17 +13,22 @@ CORS(app)
 def get_conn():
     """Veritabanı bağlantısı oluştur"""
     try:
-        # Tam connection string'i ortam değişkeninden alın (güvenlik için)
-            conn = psycopg.connect(
-            host="aws-0-eu-central-1.pooler.supabase.com",  # Dashboard'dan aldığınız host
-            dbname="postgres",
-            user="postgres.[project-ref]",                  # Dashboard'dan aldığınız user
+        conn = psycopg.connect(
+            host=os.getenv('DB_HOST'),           # db.ubixgmevwfmqstujzyxr.supabase.co
+            dbname=os.getenv('DB_NAME', 'postgres'),
+            user=os.getenv('DB_USER', 'postgres'),
             password=os.getenv('DB_PASSWORD'),
-            port=5432,
-            sslmode="require",
-            connect_timeout=30,
+            port=int(os.getenv('DB_PORT', '5432')),
+            sslmode=os.getenv('DB_SSLMODE', 'require'),
+            
+            # BU SATIRLAR ÇOK ÖNEMLİ - IPv6'yi devre dışı bırakıyoruz
+            connect_timeout=20,
             keepalives=1,
-            keepalives_idle=30
+            keepalives_idle=30,
+            keepalives_count=5,
+            
+            # En önemlisi: Sadece IPv4 kullanmasını zorla
+            options="-c binary.parameters=no"  # Ekstra stabilite
         )
         return conn
     except Exception as e:
@@ -802,4 +807,5 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
