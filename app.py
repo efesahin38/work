@@ -341,9 +341,7 @@ def index():
 </body>
 </html>"""
 
-@app.route('/api/login', methods=['GET', 'POST'])
-@app.route('/api/signup', methods=['GET', 'POST'])
-def signup():
+@app.route('/api/signup', methods=['POST'])
     try:
         data = request.json
         name = data.get('name', '').strip()
@@ -399,8 +397,7 @@ def signup():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
 
-@app.route('/api/login', methods=['GET', 'POST'])
-def login():
+@app.route('/api/login', methods=['POST'])
     try:
         data = request.json
         email = data.get('email', '').strip()
