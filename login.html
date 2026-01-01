@@ -23,7 +23,6 @@
             overflow: hidden;
         }
 
-        /* Arka plan neon efektleri */
         body::before {
             content: '';
             position: absolute;
@@ -296,7 +295,6 @@
         </div>
 
         <div class="form-container">
-            <!-- LOGIN FORMU -->
             <div id="login-section" class="form-section active">
                 <h2>Giriş Yap</h2>
                 
@@ -319,7 +317,6 @@
                 </div>
             </div>
 
-            <!-- SIGNUP FORMU -->
             <div id="signup-section" class="form-section">
                 <h2>Kayıt Ol</h2>
                 
@@ -341,6 +338,11 @@
                 <div class="form-group">
                     <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
                     <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-id">🆔 Kimlik No:</label>
+                    <input type="number" id="signup-id" placeholder="Personel kimlik numaranız...">
                 </div>
 
                 <button onclick="handleSignup()">Kayıt Ol</button>
@@ -385,7 +387,8 @@
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
-                    window.location.href = '/dashboard';
+                    localStorage.setItem('employee_id', data.employee_id);
+                    window.location.href = 'https://work-c5ps.onrender.com/dashboard';
                 } else {
                     errorDiv.classList.remove('hidden');
                     errorDiv.textContent = '❌ ' + data.message;
@@ -401,9 +404,10 @@
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
+            const employee_id = document.getElementById('signup-id').value.trim();
             const errorDiv = document.getElementById('signup-error');
 
-            if (!name || !email || !password || !confirm) {
+            if (!name || !email || !password || !confirm || !employee_id) {
                 errorDiv.classList.remove('hidden');
                 errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
                 return;
@@ -425,7 +429,7 @@
                 const response = await fetch('https://work-c5ps.onrender.com/api/signup', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name, email, password})
+                    body: JSON.stringify({name, email, password, employee_id: parseInt(employee_id)})
                 });
 
                 const data = await response.json();
@@ -433,6 +437,7 @@
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
+                    localStorage.setItem('employee_id', data.employee_id);
                     window.location.href = 'https://work-c5ps.onrender.com/dashboard';
                 } else {
                     errorDiv.classList.remove('hidden');
@@ -453,5 +458,4 @@
         });
     </script>
 </body>
-
 </html>
