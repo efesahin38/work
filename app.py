@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg2
@@ -5,26 +6,40 @@ from datetime import datetime, timedelta
 import hashlib
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this'
+app.secret_key = os.getenv('SECRET_KEY', 'change-this-in-production')
 CORS(app)
 
-# Supabase bağlantısı
+# ==================== DATABASE CONFIG ====================
 SUPABASE_DB_CONFIG = {
-    "host": "db.ubixgmevwfmqstujzyxr.supabase.co",
-    "database": "postgres",
-    "user": "postgres",
-    "password": "Berlin225!deneme",
-    "port": 5432,
-    "sslmode": "require"
+    "host": os.getenv('DB_HOST'),
+    "database": os.getenv('DB_NAME', 'postgres'),
+    "user": os.getenv('DB_USER'),
+    "password": os.getenv('DB_PASSWORD'),
+    "port": int(os.getenv('DB_PORT', 5432)),
+    "sslmode": os.getenv('DB_SSLMODE', 'require'),
+    "connect_timeout": 10
 }
 
+# Validate environment variables
+required_vars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD']
+missing = [v for v in required_vars if not os.getenv(v)]
+if missing:
+    print(f"⚠️  Missing environment variables: {', '.join(missing)}")
+
 def get_conn():
-    return psycopg2.connect(**SUPABASE_DB_CONFIG)
+    """Veritabanı bağlantısı oluştur"""
+    try:
+        return psycopg2.connect(**SUPABASE_DB_CONFIG)
+    except psycopg2.OperationalError as e:
+        print(f"❌ Database connection error: {str(e)}")
+        raise
 
 def hash_password(password):
+    """Şifreyi hash'le"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 def calculate_duration(start_str, end_str):
+    """Başlangıç ve bitiş saati arasındaki süreyi hesapla"""
     try:
         start = datetime.strptime(start_str, "%H:%M")
         end = datetime.strptime(end_str, "%H:%M")
@@ -33,18 +48,18 @@ def calculate_duration(start_str, end_str):
         total_minutes = int((end - start).total_seconds() / 60)
         hours = total_minutes // 60
         minutes = total_minutes % 60
-        return f"{hours} saat {minutes} dakika"
+        return f"{hours}h {minutes}m"
     except:
         return "Hesaplanamadı"
 
-# ==================== INIT DB ====================
+# ==================== DATABASE INITIALIZATION ====================
 
 def init_db():
     """Veritabanı tablolarını oluştur/kontrol et"""
-    conn = get_conn()
-    cur = conn.cursor()
-    
     try:
+        conn = get_conn()
+        cur = conn.cursor()
+        
         # Users tablosu
         cur.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -52,6 +67,17 @@ def init_db():
                 email VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 name VARCHAR(255) NOT NULL,
+                employee_id INTEGER,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Employees tablosu
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS employees (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) UNIQUE NOT NULL,
+                employee_id INTEGER UNIQUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -67,17 +93,19 @@ def init_db():
                 end_time TIME,
                 location TEXT,
                 duration TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (employee_id) REFERENCES employees(id)
             )
         ''')
         
         conn.commit()
-        print("✅ Tablolar başarıyla oluşturuldu/kontrol edildi")
-    except Exception as e:
-        print(f"❌ Tablo oluşturma hatası: {str(e)}")
-    finally:
         cur.close()
         conn.close()
+        print("✅ Tablolar başarıyla oluşturuldu/kontrol edildi")
+        return True
+    except Exception as e:
+        print(f"❌ Tablo oluşturma hatası: {str(e)}")
+        return False
 
 # ==================== AUTH ROUTES ====================
 
@@ -88,7 +116,7 @@ def index():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 CANKURTARAN - Giriş</title>
+    <title>🎯 PROSPANDO - Giriş</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -153,14 +181,12 @@ def index():
         button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
         .toggle-link { text-align: center; color: #666; font-size: 14px; }
         .toggle-link a { color: #667eea; cursor: pointer; text-decoration: none; font-weight: 600; }
-        .toggle-link a:hover { text-decoration: underline; }
         .form-section { display: none; }
         .form-section.active { display: block; }
         .error {
             color: #f56565;
             font-size: 13px;
             margin-top: 10px;
-            text-align: center;
             padding: 10px;
             background: #fff5f5;
             border-radius: 6px;
@@ -173,7 +199,7 @@ def index():
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 CANKURTARAN</h1>
+            <h1>🎯 PROSPANDO</h1>
             <p>Personel Yoklama Sistemi</p>
         </div>
         <div class="form-container">
@@ -211,6 +237,10 @@ def index():
                     <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
                     <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
                 </div>
+                <div class="form-group">
+                    <label for="signup-id">🆔 Kimlik No:</label>
+                    <input type="number" id="signup-id" placeholder="Personel kimlik numaranız...">
+                </div>
                 <button onclick="handleSignup()">Kayıt Ol</button>
                 <div id="signup-error" class="error hidden"></div>
                 <div class="toggle-link">
@@ -246,7 +276,7 @@ def index():
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
                     localStorage.setItem('employee_id', data.employee_id);
-                    window.location.href = '/index';
+                    window.location.href = '/dashboard';
                 } else {
                     errorDiv.classList.remove('hidden');
                     errorDiv.textContent = '❌ ' + data.message;
@@ -261,8 +291,9 @@ def index():
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
+            const employee_id = document.getElementById('signup-id').value.trim();
             const errorDiv = document.getElementById('signup-error');
-            if (!name || !email || !password || !confirm) {
+            if (!name || !email || !password || !confirm || !employee_id) {
                 errorDiv.classList.remove('hidden');
                 errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
                 return;
@@ -281,14 +312,14 @@ def index():
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name, email, password})
+                    body: JSON.stringify({name, email, password, employee_id: parseInt(employee_id)})
                 });
                 const data = await response.json();
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
                     localStorage.setItem('employee_id', data.employee_id);
-                    window.location.href = '/index';
+                    window.location.href = '/dashboard';
                 } else {
                     errorDiv.classList.remove('hidden');
                     errorDiv.textContent = '❌ ' + data.message;
@@ -315,39 +346,40 @@ def signup():
         name = data.get('name', '').strip()
         email = data.get('email', '').strip()
         password = data.get('password', '')
+        employee_id = data.get('employee_id')
 
-        if not name or not email or not password:
+        if not name or not email or not password or not employee_id:
             return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
 
         conn = get_conn()
         cur = conn.cursor()
 
-        # Email var mı kontrol et
+        # Email kontrol
         cur.execute("SELECT id FROM users WHERE email = %s", (email,))
         if cur.fetchone():
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
 
-        # Employees tablosunda bu adla personel var mı? (büyük/küçük harf fark etmesin)
-        cur.execute("SELECT id FROM employees WHERE LOWER(name) = LOWER(%s)", (name,))
+        # Employees tablosunda kontrol et
+        cur.execute("SELECT id, name FROM employees WHERE employee_id = %s", (employee_id,))
         employee = cur.fetchone()
 
         if not employee:
-            cur.close()
-            conn.close()
-            return jsonify({
-                'success': False, 
-                'message': f'❌ Hata: "{name}" adında personel bulunamadı! Lütfen doğru adınızı giriniz.'
-            }), 404
-
-        employee_id = employee[0]
+            # Yeni personel ekle
+            cur.execute(
+                "INSERT INTO employees (name, employee_id) VALUES (%s, %s) RETURNING id",
+                (name, employee_id)
+            )
+            emp_id = cur.fetchone()[0]
+        else:
+            emp_id = employee[0]
 
         # Kullanıcı ekle
         hashed_password = hash_password(password)
         cur.execute(
-            "INSERT INTO users (email, password, name) VALUES (%s, %s, %s) RETURNING id",
-            (email, hashed_password, name)
+            "INSERT INTO users (email, password, name, employee_id) VALUES (%s, %s, %s, %s) RETURNING id",
+            (email, hashed_password, name, emp_id)
         )
         user_id = cur.fetchone()[0]
         conn.commit()
@@ -359,7 +391,7 @@ def signup():
             'message': 'Kayıt başarılı!',
             'user_id': user_id,
             'user_name': name,
-            'employee_id': employee_id
+            'employee_id': emp_id
         })
     except Exception as e:
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
@@ -377,8 +409,7 @@ def login():
         conn = get_conn()
         cur = conn.cursor()
 
-        # Kullanıcıyı bul
-        cur.execute("SELECT id, name, password FROM users WHERE email = %s", (email,))
+        cur.execute("SELECT id, name, password, employee_id FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
 
         if not user:
@@ -386,27 +417,13 @@ def login():
             conn.close()
             return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
 
-        user_id, name, hashed_password = user
+        user_id, name, hashed_password, employee_id = user
 
-        # Şifreyi kontrol et
         if hash_password(password) != hashed_password:
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
 
-        # Employees tablosundan employee_id'yi al (büyük/küçük harf fark etmesin)
-        cur.execute("SELECT id FROM employees WHERE LOWER(name) = LOWER(%s)", (name,))
-        employee = cur.fetchone()
-
-        if not employee:
-            cur.close()
-            conn.close()
-            return jsonify({
-                'success': False, 
-                'message': f'❌ Hata: Sisteme kaydedilmemiş personel!'
-            }), 404
-
-        employee_id = employee[0]
         cur.close()
         conn.close()
 
@@ -420,16 +437,16 @@ def login():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
 
-# ==================== ATTENDANCE PAGE ====================
+# ==================== DASHBOARD PAGE ====================
 
-@app.route('/index')
-def index_page():
+@app.route('/dashboard')
+def dashboard():
     return """<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 CANKURTARAN YOKLAMA</title>
+    <title>🎯 PROSPANDO YOKLAMA</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -571,7 +588,7 @@ def index_page():
 </head>
 <body>
     <div class="navbar">
-        <div><h1>🎯 CANKURTARAN</h1></div>
+        <div><h1>🎯 PROSPANDO</h1></div>
         <div><button onclick="logout()">Çıkış Yap</button></div>
     </div>
     <div class="container">
@@ -587,7 +604,7 @@ def index_page():
                 <option value="Spandau">🏭 Spandau</option>
                 <option value="Steglitz">🏪 Steglitz</option>
                 <option value="Neukölln">🗽️ Neukölln</option>
-                <option value="Charlottenburg">🛍️ Charlottenburg</option>
+                <option value="Charlottenburg">🛖️ Charlottenburg</option>
             </select>
         </div>
         <button class="check-btn" onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
@@ -657,7 +674,6 @@ def check_in():
         conn = get_conn()
         cur = conn.cursor()
 
-        # Employees tablosundan personel bilgisini al
         cur.execute("SELECT id, name FROM employees WHERE id = %s", (employee_id,))
         employee = cur.fetchone()
 
@@ -675,7 +691,7 @@ def check_in():
         today = datetime.now().strftime("%Y-%m-%d")
         now_time = datetime.now().strftime("%H:%M")
 
-        # Açık kaydı kontrol et (aynı konumda)
+        # Açık kayıt kontrol et
         cur.execute("""
             SELECT id, start_time FROM attendance 
             WHERE employee_id = %s AND date = %s AND location = %s AND end_time IS NULL
@@ -749,6 +765,39 @@ def check_in():
             'type': 'error'
         }), 500
 
+# ==================== HEALTH CHECK ====================
+
+@app.route('/health', methods=['GET'])
+def health():
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.close()
+        conn.close()
+        return jsonify({'status': 'healthy', 'database': 'connected'}), 200
+    except Exception as e:
+        return jsonify({'status': 'unhealthy', 'database': 'disconnected', 'error': str(e)}), 500
+
+# ==================== ERROR HANDLERS ====================
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({'success': False, 'message': 'Sayfa bulunamadı'}), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return jsonify({'success': False, 'message': 'Sunucu hatası'}), 500
+
+# ==================== MAIN ====================
+
 if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+    print("🚀 Uygulama başlatılıyor...")
+    if init_db():
+        print("✅ Veritabanı hazır")
+    else:
+        print("⚠️  Veritabanı bağlantısında sorun olabilir")
+    
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('FLASK_ENV', 'production') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)
