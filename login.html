@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 PROSPANDO - Giriş</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Arka plan neon efektleri */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, #7c3aed 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #ec4899 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #3b82f6 0%, transparent 40%);
+            opacity: 0.5;
+            z-index: -1;
+            animation: pulse 18s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.7; }
+        }
+
+        .container {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            box-shadow: 
+                0 0 50px rgba(124, 58, 237, 0.4),
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.05);
+            max-width: 460px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            padding: 60px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(236,72,153,0.3));
+            animation: neonShift 8s ease infinite;
+        }
+
+        @keyframes neonShift {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            text-shadow: 
+                0 0 20px rgba(255,255,255,0.8),
+                0 0 40px rgba(124,58,237,0.8);
+            letter-spacing: 3px;
+            position: relative;
+            z-index: 2;
+            animation: neonGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from { text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(124,58,237,0.8); }
+            to { text-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(236,72,153,0.9); }
+        }
+
+        .header p {
+            font-size: 20px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .form-container {
+            padding: 50px 40px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #e2e8f0;
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+            font-weight: 600;
+            font-size: 16px;
+            text-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
+        }
+
+        input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 3px solid #7c3aed;
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(30, 41, 59, 0.8);
+            color: #e2e8f0;
+            transition: all 0.4s ease;
+            box-shadow: 
+                0 0 20px rgba(124, 58, 237, 0.3),
+                inset 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ec4899;
+            background: rgba(51, 65, 85, 0.9);
+            box-shadow: 
+                0 0 40px rgba(236, 72, 153, 0.6),
+                0 0 60px rgba(124, 58, 237, 0.4);
+            transform: translateY(-3px);
+        }
+
+        input::placeholder {
+            color: rgba(226, 232, 240, 0.6);
+        }
+
+        button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            margin-bottom: 20px;
+            box-shadow: 
+                0 0 40px rgba(124, 58, 237, 0.6),
+                0 10px 30px rgba(0, 0, 0, 0.4);
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.7s;
+        }
+
+        button:hover {
+            transform: translateY(-6px);
+            box-shadow: 
+                0 0 80px rgba(236, 72, 153, 0.8),
+                0 20px 50px rgba(124, 58, 237, 0.5);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(-2px);
+        }
+
+        .toggle-link {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .toggle-link a {
+            color: #ec4899;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+            transition: all 0.3s;
+        }
+
+        .toggle-link a:hover {
+            color: #f472b6;
+            text-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
+        }
+
+        .error {
+            color: #fca5a5;
+            font-size: 15px;
+            margin-top: 15px;
+            text-align: center;
+            padding: 16px;
+            background: rgba(239, 68, 68, 0.15);
+            border-radius: 12px;
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .form-section.active {
+            display: block;
+            opacity: 1;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px;
+                border-radius: 24px;
+            }
+            .header {
+                padding: 50px 20px;
+            }
+            .header h1 {
+                font-size: 44px;
+            }
+            .header p {
+                font-size: 18px;
+            }
+            .form-container {
+                padding: 40px 30px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            button {
+                padding: 18px;
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 PROSPANDO</h1>
+            <p>Personel Yoklama Sistemi</p>
+        </div>
+
+        <div class="form-container">
+            <!-- LOGIN FORMU -->
+            <div id="login-section" class="form-section active">
+                <h2>Giriş Yap</h2>
+                
+                <div class="form-group">
+                    <label for="login-email">📧 Email:</label>
+                    <input type="email" id="login-email" placeholder="Email adresiniz...">
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">🔐 Şifre:</label>
+                    <input type="password" id="login-password" placeholder="Şifreniz...">
+                </div>
+
+                <button onclick="handleLogin()">Giriş Yap</button>
+
+                <div id="login-error" class="error hidden"></div>
+
+                <div class="toggle-link">
+                    Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
+                </div>
+            </div>
+
+            <!-- SIGNUP FORMU -->
+            <div id="signup-section" class="form-section">
+                <h2>Kayıt Ol</h2>
+                
+                <div class="form-group">
+                    <label for="signup-name">👤 Ad Soyad:</label>
+                    <input type="text" id="signup-name" placeholder="Ad Soyadınız...">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">📧 Email:</label>
+                    <input type="email" id="signup-email" placeholder="Email adresiniz...">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">🔐 Şifre:</label>
+                    <input type="password" id="signup-password" placeholder="Şifreniz...">
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
+                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
+                </div>
+
+                <button onclick="handleSignup()">Kayıt Ol</button>
+
+                <div id="signup-error" class="error hidden"></div>
+
+                <div class="toggle-link">
+                    Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            document.getElementById('login-section').classList.toggle('active');
+            document.getElementById('signup-section').classList.toggle('active');
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('signup-error').classList.add('hidden');
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            if (!email || !password) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('user_name', data.user_name);
+                    window.location.href = '/dashboard';
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = '❌ ' + data.message;
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Hata: ' + error.message;
+            }
+        }
+
+        async function handleSignup() {
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            const errorDiv = document.getElementById('signup-error');
+
+            if (!name || !email || !password || !confirm) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                return;
+            }
+
+            if (password !== confirm) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Şifreler eşleşmiyor!';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Şifre en az 6 karakter olmalıdır!';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, email, password})
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('user_name', data.user_name);
+                    window.location.href = '/dashboard';
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = '❌ ' + data.message;
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Hata: ' + error.message;
+            }
+        }
+
+        document.getElementById('login-password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        document.getElementById('signup-confirm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSignup();
+        });
+    </script>
+</body>
+</html>

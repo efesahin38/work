@@ -1,0 +1,754 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import psycopg2
+from datetime import datetime, timedelta
+import hashlib
+
+app = Flask(__name__)
+app.secret_key = 'your-secret-key-change-this'
+CORS(app)
+
+# Supabase bağlantısı
+SUPABASE_DB_CONFIG = {
+    "host": "db.ubixgmevwfmqstujzyxr.supabase.co",
+    "database": "postgres",
+    "user": "postgres",
+    "password": "Berlin225!deneme",
+    "port": 5432,
+    "sslmode": "require"
+}
+
+def get_conn():
+    return psycopg2.connect(**SUPABASE_DB_CONFIG)
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def calculate_duration(start_str, end_str):
+    try:
+        start = datetime.strptime(start_str, "%H:%M")
+        end = datetime.strptime(end_str, "%H:%M")
+        if end < start:
+            end += timedelta(days=1)
+        total_minutes = int((end - start).total_seconds() / 60)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        return f"{hours} saat {minutes} dakika"
+    except:
+        return "Hesaplanamadı"
+
+# ==================== INIT DB ====================
+
+def init_db():
+    """Veritabanı tablolarını oluştur/kontrol et"""
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    try:
+        # Users tablosu
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Attendance tablosu
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS attendance (
+                id SERIAL PRIMARY KEY,
+                employee_id INTEGER NOT NULL,
+                employee_name TEXT,
+                date DATE,
+                start_time TIME,
+                end_time TIME,
+                location TEXT,
+                duration TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        conn.commit()
+        print("✅ Tablolar başarıyla oluşturuldu/kontrol edildi")
+    except Exception as e:
+        print(f"❌ Tablo oluşturma hatası: {str(e)}")
+    finally:
+        cur.close()
+        conn.close()
+
+# ==================== AUTH ROUTES ====================
+
+@app.route('/')
+def index():
+    return """<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 CANKURTARAN - Giriş</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 { font-size: 48px; margin-bottom: 10px; }
+        .header p { font-size: 16px; opacity: 0.9; }
+        .form-container { padding: 40px; }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); }
+        .toggle-link { text-align: center; color: #666; font-size: 14px; }
+        .toggle-link a { color: #667eea; cursor: pointer; text-decoration: none; font-weight: 600; }
+        .toggle-link a:hover { text-decoration: underline; }
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .error {
+            color: #f56565;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 6px;
+            border-left: 3px solid #f56565;
+        }
+        .hidden { display: none; }
+        h2 { text-align: center; margin-bottom: 30px; color: #2d3748; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 CANKURTARAN</h1>
+            <p>Personel Yoklama Sistemi</p>
+        </div>
+        <div class="form-container">
+            <div id="login-section" class="form-section active">
+                <h2>Giriş Yap</h2>
+                <div class="form-group">
+                    <label for="login-email">📧 Email:</label>
+                    <input type="email" id="login-email" placeholder="Email adresiniz...">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">🔐 Şifre:</label>
+                    <input type="password" id="login-password" placeholder="Şifreniz...">
+                </div>
+                <button onclick="handleLogin()">Giriş Yap</button>
+                <div id="login-error" class="error hidden"></div>
+                <div class="toggle-link">
+                    Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
+                </div>
+            </div>
+            <div id="signup-section" class="form-section">
+                <h2>Kayıt Ol</h2>
+                <div class="form-group">
+                    <label for="signup-name">👤 Ad Soyad:</label>
+                    <input type="text" id="signup-name" placeholder="Ad Soyadınız...">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">📧 Email:</label>
+                    <input type="email" id="signup-email" placeholder="Email adresiniz...">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">🔐 Şifre:</label>
+                    <input type="password" id="signup-password" placeholder="Şifreniz...">
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
+                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
+                </div>
+                <button onclick="handleSignup()">Kayıt Ol</button>
+                <div id="signup-error" class="error hidden"></div>
+                <div class="toggle-link">
+                    Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleForm() {
+            document.getElementById('login-section').classList.toggle('active');
+            document.getElementById('signup-section').classList.toggle('active');
+            document.getElementById('login-error').classList.add('hidden');
+            document.getElementById('signup-error').classList.add('hidden');
+        }
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            if (!email || !password) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                return;
+            }
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('user_name', data.user_name);
+                    localStorage.setItem('employee_id', data.employee_id);
+                    window.location.href = '/index';
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = '❌ ' + data.message;
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Bağlantı hatası!';
+            }
+        }
+        async function handleSignup() {
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            const errorDiv = document.getElementById('signup-error');
+            if (!name || !email || !password || !confirm) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                return;
+            }
+            if (password !== confirm) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Şifreler eşleşmiyor!';
+                return;
+            }
+            if (password.length < 6) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Şifre en az 6 karakter olmalıdır!';
+                return;
+            }
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, email, password})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    localStorage.setItem('user_id', data.user_id);
+                    localStorage.setItem('user_name', data.user_name);
+                    localStorage.setItem('employee_id', data.employee_id);
+                    window.location.href = '/index';
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    errorDiv.textContent = '❌ ' + data.message;
+                }
+            } catch (error) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Bağlantı hatası!';
+            }
+        }
+        document.getElementById('login-password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('signup-confirm').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSignup();
+        });
+    </script>
+</body>
+</html>"""
+
+@app.route('/api/signup', methods=['POST'])
+def signup():
+    try:
+        data = request.json
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+
+        if not name or not email or not password:
+            return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
+
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # Email var mı kontrol et
+        cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+        if cur.fetchone():
+            cur.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
+
+        # Employees tablosunda bu adla personel var mı? (büyük/küçük harf fark etmesin)
+        cur.execute("SELECT id FROM employees WHERE LOWER(name) = LOWER(%s)", (name,))
+        employee = cur.fetchone()
+
+        if not employee:
+            cur.close()
+            conn.close()
+            return jsonify({
+                'success': False, 
+                'message': f'❌ Hata: "{name}" adında personel bulunamadı! Lütfen doğru adınızı giriniz.'
+            }), 404
+
+        employee_id = employee[0]
+
+        # Kullanıcı ekle
+        hashed_password = hash_password(password)
+        cur.execute(
+            "INSERT INTO users (email, password, name) VALUES (%s, %s, %s) RETURNING id",
+            (email, hashed_password, name)
+        )
+        user_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Kayıt başarılı!',
+            'user_id': user_id,
+            'user_name': name,
+            'employee_id': employee_id
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Email ve şifre gerekli!'}), 400
+
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # Kullanıcıyı bul
+        cur.execute("SELECT id, name, password FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+
+        if not user:
+            cur.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+
+        user_id, name, hashed_password = user
+
+        # Şifreyi kontrol et
+        if hash_password(password) != hashed_password:
+            cur.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+
+        # Employees tablosundan employee_id'yi al (büyük/küçük harf fark etmesin)
+        cur.execute("SELECT id FROM employees WHERE LOWER(name) = LOWER(%s)", (name,))
+        employee = cur.fetchone()
+
+        if not employee:
+            cur.close()
+            conn.close()
+            return jsonify({
+                'success': False, 
+                'message': f'❌ Hata: Sisteme kaydedilmemiş personel!'
+            }), 404
+
+        employee_id = employee[0]
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            'success': True,
+            'message': 'Giriş başarılı!',
+            'user_id': user_id,
+            'user_name': name,
+            'employee_id': employee_id
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
+
+# ==================== ATTENDANCE PAGE ====================
+
+@app.route('/index')
+def index_page():
+    return """<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 CANKURTARAN YOKLAMA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 100px;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .navbar h1 { font-size: 24px; }
+        .navbar button {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .navbar button:hover { background: #e53e3e; }
+        .container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            padding: 60px 80px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .welcome {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .title {
+            color: white;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+        .form-group { margin-bottom: 30px; }
+        label {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.25);
+            padding: 18px 25px;
+            border-radius: 15px;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            width: fit-content;
+            min-width: 200px;
+        }
+        select, input {
+            width: 100%;
+            padding: 20px;
+            font-size: 20px;
+            border: 3px solid #4299e1;
+            border-radius: 15px;
+            background: white;
+            color: #2d3748;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+        .input-row {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        .input-row label { margin-bottom: 0; flex-shrink: 0; }
+        .input-row input, .input-row select { flex: 1; }
+        button.check-btn {
+            width: 100%;
+            padding: 35px;
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button.check-btn:hover { background: linear-gradient(135deg, #38a169 0%, #2f855a 100%); }
+        .result {
+            margin-top: 30px;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: white;
+            min-height: 130px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            white-space: pre-wrap;
+        }
+        .result.success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); display: flex; }
+        .result.error { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); display: flex; }
+        .result.warning { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); display: flex; }
+        @media (max-width: 768px) {
+            .container { padding: 30px 20px; }
+            .welcome { font-size: 24px; }
+            button.check-btn { padding: 20px; font-size: 24px; }
+            .input-row { flex-direction: column; }
+            label { font-size: 18px; width: 100%; }
+            select, input { font-size: 16px; padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div><h1>🎯 CANKURTARAN</h1></div>
+        <div><button onclick="logout()">Çıkış Yap</button></div>
+    </div>
+    <div class="container">
+        <div class="welcome">
+            👋 Hoş geldiniz, <span id="user-name"></span>!
+        </div>
+        <div class="title">PERSONEL YOKLAMA SİSTEMİ</div>
+        <div class="form-group input-row">
+            <label for="location">📍 BÖLGE:</label>
+            <select id="location">
+                <option value="">Bölge seçiniz...</option>
+                <option value="Mitte">🏢 Mitte</option>
+                <option value="Spandau">🏭 Spandau</option>
+                <option value="Steglitz">🏪 Steglitz</option>
+                <option value="Neukölln">🗽️ Neukölln</option>
+                <option value="Charlottenburg">🛍️ Charlottenburg</option>
+            </select>
+        </div>
+        <button class="check-btn" onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
+        <div id="result" class="result"></div>
+    </div>
+    <script>
+        window.addEventListener('load', () => {
+            const userName = localStorage.getItem('user_name');
+            const userId = localStorage.getItem('user_id');
+            const employeeId = localStorage.getItem('employee_id');
+            if (!userName || !userId || !employeeId) {
+                window.location.href = '/';
+                return;
+            }
+            document.getElementById('user-name').textContent = userName;
+            document.getElementById('location').focus();
+        });
+        async function checkIn() {
+            const location = document.getElementById('location').value;
+            const employeeId = localStorage.getItem('employee_id');
+            if (!location) {
+                showResult('❌ HATA!\\nLütfen bölge seçiniz.', 'error');
+                return;
+            }
+            try {
+                const response = await fetch('/api/checkin', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        employee_id: parseInt(employeeId),
+                        location: location
+                    })
+                });
+                const data = await response.json();
+                showResult(data.message, data.type);
+                if (data.success) {
+                    document.getElementById('location').value = '';
+                    document.getElementById('location').focus();
+                }
+            } catch (error) {
+                showResult('❌ HATA!\\nBağlantı hatası: ' + error.message, 'error');
+            }
+        }
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+            setTimeout(() => { resultDiv.className = 'result'; }, 6000);
+        }
+        function logout() {
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('employee_id');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>"""
+
+@app.route('/api/checkin', methods=['POST'])
+def check_in():
+    try:
+        data = request.json
+        employee_id = int(data.get('employee_id'))
+        location = data.get('location', '')
+
+        conn = get_conn()
+        cur = conn.cursor()
+
+        # Employees tablosundan personel bilgisini al
+        cur.execute("SELECT id, name FROM employees WHERE id = %s", (employee_id,))
+        employee = cur.fetchone()
+
+        if not employee:
+            cur.close()
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': '❌ HATA!\\nPersonel bulunamadı!',
+                'type': 'error'
+            }), 404
+
+        emp_id, emp_name = employee
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        now_time = datetime.now().strftime("%H:%M")
+
+        # Açık kaydı kontrol et (aynı konumda)
+        cur.execute("""
+            SELECT id, start_time FROM attendance 
+            WHERE employee_id = %s AND date = %s AND location = %s AND end_time IS NULL
+        """, (employee_id, today, location))
+
+        open_record = cur.fetchone()
+
+        if open_record:
+            # Çıkış yap
+            att_id, start_time = open_record
+            start_time_str = start_time.strftime("%H:%M") if hasattr(start_time, 'strftime') else str(start_time)[:5]
+            duration = calculate_duration(start_time_str, now_time)
+
+            cur.execute("""
+                UPDATE attendance SET end_time = %s, duration = %s WHERE id = %s
+            """, (now_time, duration, att_id))
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            return jsonify({
+                'success': True,
+                'message': f'👋 GÖRÜŞÜRÜZ!\\n{emp_name}\\n🕐 Çıkış: {now_time}\\n⏱️ {duration}',
+                'type': 'success'
+            })
+        else:
+            # Başka yerde açık kayıt var mı?
+            cur.execute("""
+                SELECT location FROM attendance 
+                WHERE employee_id = %s AND date = %s AND end_time IS NULL
+            """, (employee_id, today))
+
+            elsewhere = cur.fetchone()
+
+            if elsewhere:
+                cur.close()
+                conn.close()
+                return jsonify({
+                    'success': False,
+                    'message': f'⚠️ DİKKAT!\\n{emp_name}\\n{elsewhere[0]} bölgesinde\\naçık girişiniz var!\\nÖnce çıkış yapınız.',
+                    'type': 'warning'
+                }), 409
+
+            # Giriş yap
+            cur.execute("""
+                INSERT INTO attendance (employee_id, employee_name, date, start_time, location) 
+                VALUES (%s, %s, %s, %s, %s)
+            """, (employee_id, emp_name, today, now_time, location))
+
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            return jsonify({
+                'success': True,
+                'message': f'✅ HOŞ GELDIN!\\n{emp_name}\\n🕐 Giriş: {now_time}\\n📍 {location}',
+                'type': 'success'
+            })
+
+    except ValueError as e:
+        return jsonify({
+            'success': False,
+            'message': f'❌ HATA: Geçersiz veri!',
+            'type': 'error'
+        }), 400
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'❌ HATA: {str(e)}',
+            'type': 'error'
+        }), 500
+
+if __name__ == '__main__':
+    init_db()
+    app.run(debug=True)

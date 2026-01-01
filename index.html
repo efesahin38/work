@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 PROSPANDO YOKLAMA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Arka plan neon ışıltı efektleri */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, #7c3aed 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #ec4899 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #3b82f6 0%, transparent 40%);
+            opacity: 0.4;
+            z-index: -1;
+            animation: pulse 15s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.6; }
+        }
+
+        .container {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 70px 90px;
+            max-width: 960px;
+            width: 100%;
+            box-shadow: 
+                0 0 40px rgba(124, 58, 237, 0.4),
+                0 0 80px rgba(236, 72, 153, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 30px;
+            z-index: -1;
+        }
+
+        .title {
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: white;
+            padding: 45px;
+            border-radius: 28px;
+            text-align: center;
+            margin-bottom: 35px;
+            font-size: 58px;
+            font-weight: 900;
+            text-shadow: 
+                0 0 20px rgba(124, 58, 237, 0.8),
+                0 0 40px rgba(236, 72, 153, 0.6);
+            box-shadow: 
+                0 0 60px rgba(124, 58, 237, 0.6),
+                0 20px 50px rgba(0, 0, 0, 0.5);
+            letter-spacing: 4px;
+            animation: neonGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from { text-shadow: 0 0 20px rgba(124, 58, 237, 0.8), 0 0 40px rgba(236, 72, 153, 0.6); }
+            to { text-shadow: 0 0 30px rgba(124, 58, 237, 1), 0 0 60px rgba(236, 72, 153, 0.8); }
+        }
+
+        .subtitle {
+            color: #e2e8f0;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 60px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .form-group {
+            margin-bottom: 40px;
+        }
+
+        label {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            background: rgba(124, 58, 237, 0.2);
+            padding: 18px 28px;
+            border-radius: 20px;
+            border: 2px solid #7c3aed;
+            width: fit-content;
+            min-width: 240px;
+            box-shadow: 
+                0 0 20px rgba(124, 58, 237, 0.5),
+                inset 0 0 10px rgba(124, 58, 237, 0.2);
+            text-shadow: 0 0 10px rgba(124, 58, 237, 0.8);
+            transition: all 0.4s ease;
+        }
+
+        label:hover {
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.8);
+            transform: translateY(-3px);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 22px 26px;
+            font-size: 21px;
+            border: 3px solid #7c3aed;
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            color: #e2e8f0;
+            transition: all 0.4s ease;
+            box-shadow: 
+                0 0 20px rgba(124, 58, 237, 0.3),
+                inset 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ec4899;
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 
+                0 0 40px rgba(236, 72, 153, 0.6),
+                0 0 60px rgba(124, 58, 237, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 35px;
+            align-items: flex-start;
+        }
+
+        .input-row label {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+
+        .input-row input,
+        .input-row select {
+            flex: 1;
+        }
+
+        button {
+            width: 100%;
+            padding: 38px;
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            box-shadow: 
+                0 0 40px rgba(124, 58, 237, 0.6),
+                0 15px 40px rgba(0, 0, 0, 0.4);
+            letter-spacing: 4px;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.7s;
+        }
+
+        button:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 0 80px rgba(236, 72, 153, 0.8),
+                0 25px 60px rgba(124, 58, 237, 0.5);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:active {
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 50px;
+            padding: 45px;
+            border-radius: 28px;
+            text-align: center;
+            font-size: 30px;
+            font-weight: 800;
+            color: white;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid transparent;
+            white-space: pre-wrap;
+            word-break: break-word;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.6s ease;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: scale(1);
+            display: flex;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+            box-shadow: 
+                0 0 60px rgba(16, 185, 129, 0.7),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+            box-shadow: 
+                0 0 60px rgba(239, 68, 68, 0.7),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-color: #f59e0b;
+            box-shadow: 
+                0 0 60px rgba(245, 158, 11, 0.7),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .spinner {
+            border: 10px solid rgba(124, 58, 237, 0.3);
+            border-top: 10px solid #ec4899;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        .loader-text {
+            color: #e2e8f0;
+            font-size: 22px;
+            margin-top: 25px;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 50px 30px;
+            }
+
+            .title {
+                font-size: 42px;
+                padding: 30px;
+            }
+
+            .subtitle {
+                font-size: 22px;
+            }
+
+            button {
+                padding: 28px;
+                font-size: 28px;
+            }
+
+            .input-row {
+                flex-direction: column;
+                gap: 25px;
+            }
+
+            label {
+                font-size: 20px;
+                width: 100%;
+                justify-content: center;
+            }
+
+            select, input {
+                font-size: 19px;
+                padding: 20px;
+            }
+
+            .result {
+                font-size: 24px;
+                padding: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">🎯 PROSPANDO</div>
+        <div class="subtitle">PERSONEL YOKLAMA SİSTEMİ</div>
+
+        <div class="form-group input-row">
+            <label for="location">📍 BÖLGE:</label>
+            <select id="location">
+                <option value="">Bölge seçiniz...</option>
+                <option value="Mitte">🏢 Mitte</option>
+                <option value="Spandau">🏭 Spandau</option>
+                <option value="Steglitz">🏪 Steglitz</option>
+                <option value="Neukölln">🏗️ Neukölln</option>
+                <option value="Charlottenburg">🏛️ Charlottenburg</option>
+            </select>
+        </div>
+
+        <div class="form-group input-row">
+            <label for="id">🆔 KİMLİK:</label>
+            <input 
+                type="text" 
+                id="id" 
+                placeholder="ID numarasını giriniz..."
+                inputmode="numeric"
+                autocomplete="off"
+            >
+        </div>
+
+        <button onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
+
+        <div class="loader">
+            <div class="spinner"></div>
+            <div class="loader-text">İşleniyor, lütfen bekleyin...</div>
+        </div>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function checkIn() {
+            const id = document.getElementById('id').value.trim();
+            const location = document.getElementById('location').value;
+            const resultDiv = document.getElementById('result');
+            const loader = document.querySelector('.loader');
+
+            if (!id) {
+                showResult('❌ HATA!\nLütfen ID giriniz.', 'error');
+                return;
+            }
+
+            if (!location) {
+                showResult('❌ HATA!\nLütfen bölge seçiniz.', 'error');
+                return;
+            }
+
+            loader.classList.add('show');
+            resultDiv.classList.remove('show');
+
+            try {
+                const response = await fetch('/api/checkin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        id: parseInt(id),
+                        location: location
+                    })
+                });
+
+                const data = await response.json();
+                
+                showResult(data.message, data.type);
+                document.getElementById('id').value = '';
+                document.getElementById('id').focus();
+
+            } catch (error) {
+                showResult(`❌ HATA!\nBağlantı sorunu yaşandı.`, 'error');
+            } finally {
+                loader.classList.remove('show');
+            }
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+
+            setTimeout(() => {
+                resultDiv.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                resultDiv.classList.remove('show');
+            }, 8000);
+        }
+
+        document.getElementById('id').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkIn();
+            }
+        });
+
+        window.onload = () => {
+            document.getElementById('id').focus();
+        };
+    </script>
+</body>
+</html>
