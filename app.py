@@ -1,15 +1,18 @@
 import os
+import socket                  # EN ÜSTTE
+socket.has_ipv6 = False        # HEMEN ALTINDA – psycopg import edilmeden önce!
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import psycopg
+import psycopg                 # bu satırdan SONRA gelmeli
 from datetime import datetime, timedelta
 import hashlib
-import socket
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'change-this-in-production')
 CORS(app)
-socket.has_ipv6 = False
+
+
 # ==================== DATABASE CONFIG ====================
 def get_conn():
     """Veritabanı bağlantısı oluştur"""
@@ -808,6 +811,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
