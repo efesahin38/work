@@ -73,8 +73,7 @@ def init_db():
         cur.execute('''
             CREATE TABLE IF NOT EXISTS employees (
                 id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                employee_id INTEGER UNIQUE,
+                name VARCHAR(255) UNIQUE NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -450,11 +449,6 @@ def index():
                     <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
                 </div>
 
-                <div class="form-group">
-                    <label for="signup-id">🆔 Kimlik No:</label>
-                    <input type="number" id="signup-id" placeholder="Personel kimlik numaranız...">
-                </div>
-
                 <button onclick="handleSignup()">Kayıt Ol</button>
 
                 <div id="signup-error" class="error hidden"></div>
@@ -514,10 +508,9 @@ def index():
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
-            const employee_id = document.getElementById('signup-id').value.trim();
             const errorDiv = document.getElementById('signup-error');
 
-            if (!name || !email || !password || !confirm || !employee_id) {
+            if (!name || !email || !password || !confirm) {
                 errorDiv.classList.remove('hidden');
                 errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
                 return;
@@ -539,7 +532,7 @@ def index():
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name, email, password, employee_id: parseInt(employee_id)})
+                    body: JSON.stringify({name, email, password})
                 });
 
                 const data = await response.json();
@@ -592,16 +585,16 @@ def signup():
             conn.close()
             return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
         
-        # Employee ID kontrol
-        cur.execute("SELECT id FROM employees WHERE employee_id = %s", (employee_id,))
+        # Employee var mı kontrol et (name ile)
+        cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
         existing_emp = cur.fetchone()
         
         emp_id = None
         if not existing_emp:
             # Yeni employee oluştur
             cur.execute(
-                "INSERT INTO employees (name, employee_id) VALUES (%s, %s) RETURNING id",
-                (name, employee_id)
+                "INSERT INTO employees (name) VALUES (%s) RETURNING id",
+                (name,)
             )
             emp_id = cur.fetchone()[0]
         else:
