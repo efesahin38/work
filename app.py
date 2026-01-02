@@ -651,57 +651,107 @@ def dashboard():
 def check_in():
     try:
         data = request.json
-        user_id = int(data.get('employee_id'))  # aslında bu user_id olacak
+        emp_id = int(data.get('id'))          # Frontend'den gelen ID (1001, 1002 vs.)
         location = data.get('location', '')
+        
+        if not location:
+            return jsonify({
+                'success': False,
+                'message': '❌ HATA!\nLütfen bölge seçiniz.',
+                'type': 'error'
+            })
         
         conn = get_conn()
         cur = conn.cursor()
         
-        # users tablosundan isim al
-        cur.execute("SELECT name FROM users WHERE id = %s", (user_id,))
-        user = cur.fetchone()
-        if not user:
+        # employees tablosundan isim al (id ile)
+        cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+        employee = cur.fetchone()
+        
+        if not employee:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': '❌ Kullanıcı bulunamadı!', 'type': 'error'})
+            return jsonify({
+                'success': False,
+                'message': f'❌ HATA!\nID {emp_id} numaralı personel bulunamadı!',
+                'type': 'error'
+            })
         
-        emp_name = user[0]
+        emp_name = employee[0]
         today = datetime.now().strftime("%Y-%m-%d")
         now_time = datetime.now().strftime("%H:%M")
         
-        # Açık kayıt var mı?
+        # Bugün aynı bölgede açık giriş var mı?
         cur.execute("""
             SELECT id, start_time FROM attendance
             WHERE employee_id = %s AND date = %s AND location = %s AND end_time IS NULL
-        """, (user_id, today, location))
+        """, (emp_id, today, location))
         open_record = cur.fetchone()
         
         if open_record:
-            # Çıkış
+            # ÇIKIŞ YAP
             att_id, start_time = open_record
-            start_time_str = str(start_time)[:5]
-            duration = calculate_duration(start_time_str, now_time)
+            start_str = str(start_time)[:5] if len(str(start_time)) > 5 else str(start_time)
+            duration = calculate_duration(start_str, now_time)
+            
             cur.execute("""
-                UPDATE attendance SET end_time = %s, duration = %s WHERE id = %s
+                UPDATE attendance 
+                SET end_time = %s, duration = %s 
+                WHERE id = %s
             """, (now_time, duration, att_id))
-            message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ {duration}'
+            
+            message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ Çalışma Süresi: {duration}\n📍 {location}'
             type_ = 'success'
         else:
-            # Giriş
+            # GİRİŞ YAP
+            # Başka bölgede açık kayıt varsa uyarı ver
             cur.execute("""
-                INSERT INTO attendance (employee_id, employee_name, date, start_time, location)
+                SELECT location FROM attendance
+                WHERE employee_id = %s AND date = %s AND end_time IS NULL
+            """, (emp_id, today))
+            elsewhere = cur.fetchone()
+            
+            if elsewhere:
+                cur.close()
+                conn.close()
+                return jsonify({
+                    'success': False,
+                    'message': f'⚠️ DİKKAT!\n{emp_name}\n{elsewhere[0]} bölgesinde açık girişiniz var!\nÖnce oradan çıkış yapınız.',
+                    'type': 'warning'
+                })
+            
+            cur.execute("""
+                INSERT INTO attendance 
+                (employee_id, employee_name, date, start_time, location)
                 VALUES (%s, %s, %s, %s, %s)
-            """, (user_id, emp_name, today, now_time, location))
+            """, (emp_id, emp_name, today, now_time, location))
+            
             message = f'✅ HOŞ GELDİN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}'
             type_ = 'success'
         
         conn.commit()
         cur.close()
         conn.close()
-        return jsonify({'success': True, 'message': message, 'type': type_})
         
+        return jsonify({
+            'success': True,
+            'message': message,
+            'type': type_
+        })
+        
+    except ValueError:
+        return jsonify({
+            'success': False,
+            'message': '❌ HATA!\nGeçersiz ID formatı.',
+            'type': 'error'
+        })
     except Exception as e:
-        return jsonify({'success': False, 'message': f'❌ HATA: {str(e)}', 'type': 'error'}), 500
+        print(f"Check-in error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'❌ Sunucu Hatası!\nLütfen tekrar deneyin.',
+            'type': 'error'
+        })
 
 # ==================== HEALTH CHECK ====================
 
@@ -739,6 +789,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
