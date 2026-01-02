@@ -651,7 +651,7 @@ def dashboard():
 def check_in():
     try:
         data = request.json
-        emp_id = int(data.get('id'))          # Frontend'den gelen ID (1001, 1002 vs.)
+        emp_id = int(data.get('id'))          # Frontend'den gelen personel ID'si
         location = data.get('location', '')
         
         if not location:
@@ -664,7 +664,7 @@ def check_in():
         conn = get_conn()
         cur = conn.cursor()
         
-        # employees tablosundan isim al (id ile)
+        # Personeli bul
         cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
         employee = cur.fetchone()
         
@@ -681,7 +681,7 @@ def check_in():
         today = datetime.now().strftime("%Y-%m-%d")
         now_time = datetime.now().strftime("%H:%M")
         
-        # Bugün aynı bölgede açık giriş var mı?
+        # Aynı bölgede açık kayıt var mı?
         cur.execute("""
             SELECT id, start_time FROM attendance
             WHERE employee_id = %s AND date = %s AND location = %s AND end_time IS NULL
@@ -689,7 +689,7 @@ def check_in():
         open_record = cur.fetchone()
         
         if open_record:
-            # ÇIKIŞ YAP
+            # ÇIKIŞ
             att_id, start_time = open_record
             start_str = str(start_time)[:5] if len(str(start_time)) > 5 else str(start_time)
             duration = calculate_duration(start_str, now_time)
@@ -703,8 +703,7 @@ def check_in():
             message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ Çalışma Süresi: {duration}\n📍 {location}'
             type_ = 'success'
         else:
-            # GİRİŞ YAP
-            # Başka bölgede açık kayıt varsa uyarı ver
+            # GİRİŞ
             cur.execute("""
                 SELECT location FROM attendance
                 WHERE employee_id = %s AND date = %s AND end_time IS NULL
@@ -745,13 +744,13 @@ def check_in():
             'message': '❌ HATA!\nGeçersiz ID formatı.',
             'type': 'error'
         })
-  except Exception as e:
-    print(f"❌ Check-in error: {str(e)} | Data: {data}")  # Detaylı log için
-    return jsonify({
-        'success': False,
-        'message': f'❌ Hata!\n{str(e)}',  # Test için detay göster, sonra kaldır
-        'type': 'error'
-    })
+    except Exception as e:
+        print(f"❌ Check-in error: {str(e)} | Data: {data}")
+        return jsonify({
+            'success': False,
+            'message': '❌ Sunucu Hatası!\nLütfen tekrar deneyin.',
+            'type': 'error'
+        })
 
 # ==================== HEALTH CHECK ====================
 
@@ -789,6 +788,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
