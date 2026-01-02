@@ -239,6 +239,19 @@
             margin-bottom: 15px;
         }
 
+        .success {
+            color: #86efac;
+            font-size: 14px;
+            text-align: center;
+            padding: 14px;
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 10px;
+            border: 2px solid rgba(34, 197, 94, 0.4);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+            backdrop-filter: blur(8px);
+            margin-bottom: 15px;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -272,13 +285,6 @@
             button { padding: 14px; font-size: 15px; }
             .form-group { margin-bottom: 18px; }
         }
-
-        @media (max-width: 400px) {
-            .container { border-radius: 20px; }
-            .header { padding: 35px 20px; }
-            .header h1 { font-size: 36px; }
-            .form-container { padding: 30px 20px; }
-        }
     </style>
 </head>
 <body>
@@ -294,18 +300,19 @@
                 <h2>Giriş Yap</h2>
                 
                 <div id="login-error" class="error hidden"></div>
+                <div id="login-success" class="success hidden"></div>
 
                 <div class="form-group">
                     <label for="login-email">📧 Email:</label>
-                    <input type="email" id="login-email" placeholder="Email adresiniz...">
+                    <input type="email" id="login-email" placeholder="Email adresiniz..." autocomplete="email">
                 </div>
 
                 <div class="form-group">
                     <label for="login-password">🔐 Şifre:</label>
-                    <input type="password" id="login-password" placeholder="Şifreniz...">
+                    <input type="password" id="login-password" placeholder="Şifreniz..." autocomplete="current-password">
                 </div>
 
-                <button onclick="handleLogin()">Giriş Yap</button>
+                <button type="button" onclick="handleLogin()">Giriş Yap</button>
 
                 <div class="toggle-link">
                     Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
@@ -317,28 +324,29 @@
                 <h2>Kayıt Ol</h2>
 
                 <div id="signup-error" class="error hidden"></div>
+                <div id="signup-success" class="success hidden"></div>
                 
                 <div class="form-group">
                     <label for="signup-name">👤 Ad Soyad:</label>
-                    <input type="text" id="signup-name" placeholder="Ad Soyadınız...">
+                    <input type="text" id="signup-name" placeholder="Ad Soyadınız..." autocomplete="name">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-email">📧 Email:</label>
-                    <input type="email" id="signup-email" placeholder="Email adresiniz...">
+                    <input type="email" id="signup-email" placeholder="Email adresiniz..." autocomplete="email">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-password">🔐 Şifre:</label>
-                    <input type="password" id="signup-password" placeholder="Şifreniz...">
+                    <input type="password" id="signup-password" placeholder="Şifreniz..." autocomplete="new-password">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
-                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
+                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz..." autocomplete="new-password">
                 </div>
 
-                <button onclick="handleSignup()">Kayıt Ol</button>
+                <button type="button" onclick="handleSignup()">Kayıt Ol</button>
 
                 <div class="toggle-link">
                     Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
@@ -348,7 +356,6 @@
     </div>
 
     <script>
-        // ⚠️ RENDER BACKEND URL'İNİ BURASINDAssı GÜNCELLE!
         const BACKEND_URL = 'https://work-c5ps.onrender.com';
 
         function toggleForm() {
@@ -361,16 +368,38 @@
             signupSection.classList.toggle('active');
             loginError.classList.add('hidden');
             signupError.classList.add('hidden');
+
+            // Odağı sıfırla
+            if (loginSection.classList.contains('active')) {
+                setTimeout(() => document.getElementById('login-email').focus(), 100);
+            } else {
+                setTimeout(() => document.getElementById('signup-name').focus(), 100);
+            }
         }
 
         async function handleLogin() {
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
             const errorDiv = document.getElementById('login-error');
+
+            // Değerleri al ve console'da göster
+            const email = emailInput.value ? emailInput.value.trim() : '';
+            const password = passwordInput.value ? passwordInput.value.trim() : '';
+
+            console.log('Email değeri:', email, 'Uzunluk:', email.length);
+            console.log('Şifre değeri:', password, 'Uzunluk:', password.length);
+
+            errorDiv.classList.add('hidden');
 
             if (!email || !password) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                errorDiv.textContent = '❌ Lütfen email ve şifre alanlarını doldurunuz!';
+                return;
+            }
+
+            if (!email.includes('@')) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Geçerli bir email giriniz!';
                 return;
             }
 
@@ -390,25 +419,40 @@
                     window.location.href = `${BACKEND_URL}/dashboard`;
                 } else {
                     errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = '❌ ' + data.message;
+                    errorDiv.textContent = '❌ ' + (data.message || 'Giriş başarısız!');
                 }
             } catch (error) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Bağlantı hatası! Render sunucusu çalışıyor mu?';
-                console.error(error);
+                errorDiv.textContent = '❌ Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.';
+                console.error('Login hatasıः', error);
             }
         }
 
         async function handleSignup() {
-            const name = document.getElementById('signup-name').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value.trim();
-            const confirm = document.getElementById('signup-confirm').value.trim();
+            const nameInput = document.getElementById('signup-name');
+            const emailInput = document.getElementById('signup-email');
+            const passwordInput = document.getElementById('signup-password');
+            const confirmInput = document.getElementById('signup-confirm');
             const errorDiv = document.getElementById('signup-error');
+
+            const name = nameInput.value ? nameInput.value.trim() : '';
+            const email = emailInput.value ? emailInput.value.trim() : '';
+            const password = passwordInput.value ? passwordInput.value.trim() : '';
+            const confirm = confirmInput.value ? confirmInput.value.trim() : '';
+
+            console.log('Ad:', name, 'Email:', email, 'Şifre:', password.length, 'Onayla:', confirm.length);
+
+            errorDiv.classList.add('hidden');
 
             if (!name || !email || !password || !confirm) {
                 errorDiv.classList.remove('hidden');
                 errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                return;
+            }
+
+            if (!email.includes('@')) {
+                errorDiv.classList.remove('hidden');
+                errorDiv.textContent = '❌ Geçerli bir email giriniz!';
                 return;
             }
 
@@ -440,12 +484,12 @@
                     window.location.href = `${BACKEND_URL}/dashboard`;
                 } else {
                     errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = '❌ ' + data.message;
+                    errorDiv.textContent = '❌ ' + (data.message || 'Kayıt başarısız!');
                 }
             } catch (error) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Bağlantı hatası! Render sunucusu çalışıyor mu?';
-                console.error(error);
+                errorDiv.textContent = '❌ Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.';
+                console.error('Signup hatası:', error);
             }
         }
 
