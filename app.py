@@ -346,52 +346,39 @@ def signup():
         name = data.get('name', '').strip()
         email = data.get('email', '').strip()
         password = data.get('password', '')
-        employee_id = data.get('employee_id')
-
-        if not name or not email or not password or not employee_id:
+        # employee_id'yi kaldırdık, artık kullanmıyoruz
+        
+        if not name or not email or not password:
             return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
-
+        
         conn = get_conn()
         cur = conn.cursor()
-
+        
         # Email kontrol
         cur.execute("SELECT id FROM users WHERE email = %s", (email,))
         if cur.fetchone():
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
-
-        # Employees tablosunda kontrol et
-        cur.execute("SELECT id, name FROM employees WHERE employee_id = %s", (employee_id,))
-        employee = cur.fetchone()
-
-        if not employee:
-            # Yeni personel ekle
-            cur.execute(
-                "INSERT INTO employees (name, employee_id) VALUES (%s, %s) RETURNING id",
-                (name, employee_id)
-            )
-            emp_id = cur.fetchone()[0]
-        else:
-            emp_id = employee[0]
-
-        # Kullanıcı ekle
+        
+        # Doğrudan users tablosuna ekle (employee_id yok)
         hashed_password = hash_password(password)
         cur.execute(
-            "INSERT INTO users (email, password, name, employee_id) VALUES (%s, %s, %s, %s) RETURNING id",
-            (email, hashed_password, name, emp_id)
+            "INSERT INTO users (email, password, name) VALUES (%s, %s, %s) RETURNING id",
+            (email, hashed_password, name)
         )
         user_id = cur.fetchone()[0]
+        
         conn.commit()
         cur.close()
         conn.close()
-
+        
         return jsonify({
             'success': True,
             'message': 'Kayıt başarılı!',
             'user_id': user_id,
             'user_name': name,
-            'employee_id': emp_id
+            'employee_id': user_id  # geçici olarak user_id'yi gönderiyoruz, frontend uyumlu olsun
         })
     except Exception as e:
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
@@ -402,42 +389,33 @@ def login():
         data = request.json
         email = data.get('email', '').strip()
         password = data.get('password', '')
-
         if not email or not password:
             return jsonify({'success': False, 'message': 'Email ve şifre gerekli!'}), 400
-
-        try:
-            conn = get_conn()
-            cur = conn.cursor()
-
-            cur.execute("SELECT id, name, password, employee_id FROM users WHERE email = %s", (email,))
-            user = cur.fetchone()
-
-            if not user:
-                cur.close()
-                conn.close()
-                return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
-
-            user_id, name, hashed_password, employee_id = user
-
-            if hash_password(password) != hashed_password:
-                cur.close()
-                conn.close()
-                return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
-
+        
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT id, name, password FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+        if not user:
             cur.close()
             conn.close()
-
-            return jsonify({
-                'success': True,
-                'message': 'Giriş başarılı!',
-                'user_id': user_id,
-                'user_name': name,
-                'employee_id': employee_id
-            })
-        except Exception as db_error:
-            print(f"❌ Database error in login: {str(db_error)}")
-            return jsonify({'success': False, 'message': f'Database error: {str(db_error)}'}), 500
+            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+        
+        user_id, name, hashed_password = user
+        if hash_password(password) != hashed_password:
+            cur.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+        
+        cur.close()
+        conn.close()
+        return jsonify({
+            'success': True,
+            'message': 'Giriş başarılı!',
+            'user_id': user_id,
+            'user_name': name,
+            'employee_id': user_id  # frontend'in beklediği alan, user_id ile doldur
+        })
     except Exception as e:
         print(f"❌ Login error: {str(e)}")
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
@@ -673,102 +651,57 @@ def dashboard():
 def check_in():
     try:
         data = request.json
-        employee_id = int(data.get('employee_id'))
+        user_id = int(data.get('employee_id'))  # aslında bu user_id olacak
         location = data.get('location', '')
-
+        
         conn = get_conn()
         cur = conn.cursor()
-
-        cur.execute("SELECT id, name FROM employees WHERE id = %s", (employee_id,))
-        employee = cur.fetchone()
-
-        if not employee:
+        
+        # users tablosundan isim al
+        cur.execute("SELECT name FROM users WHERE id = %s", (user_id,))
+        user = cur.fetchone()
+        if not user:
             cur.close()
             conn.close()
-            return jsonify({
-                'success': False,
-                'message': '❌ HATA!\nPersonel bulunamadı!',
-                'type': 'error'
-            }), 404
-
-        emp_id, emp_name = employee
-
+            return jsonify({'success': False, 'message': '❌ Kullanıcı bulunamadı!', 'type': 'error'})
+        
+        emp_name = user[0]
         today = datetime.now().strftime("%Y-%m-%d")
         now_time = datetime.now().strftime("%H:%M")
-
-        # Açık kayıt kontrol et
+        
+        # Açık kayıt var mı?
         cur.execute("""
-            SELECT id, start_time FROM attendance 
+            SELECT id, start_time FROM attendance
             WHERE employee_id = %s AND date = %s AND location = %s AND end_time IS NULL
-        """, (employee_id, today, location))
-
+        """, (user_id, today, location))
         open_record = cur.fetchone()
-
+        
         if open_record:
-            # Çıkış yap
+            # Çıkış
             att_id, start_time = open_record
-            start_time_str = start_time.strftime("%H:%M") if hasattr(start_time, 'strftime') else str(start_time)[:5]
+            start_time_str = str(start_time)[:5]
             duration = calculate_duration(start_time_str, now_time)
-
             cur.execute("""
                 UPDATE attendance SET end_time = %s, duration = %s WHERE id = %s
             """, (now_time, duration, att_id))
-
-            conn.commit()
-            cur.close()
-            conn.close()
-
-            return jsonify({
-                'success': True,
-                'message': f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ {duration}',
-                'type': 'success'
-            })
+            message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ {duration}'
+            type_ = 'success'
         else:
-            # Başka yerde açık kayıt var mı?
+            # Giriş
             cur.execute("""
-                SELECT location FROM attendance 
-                WHERE employee_id = %s AND date = %s AND end_time IS NULL
-            """, (employee_id, today))
-
-            elsewhere = cur.fetchone()
-
-            if elsewhere:
-                cur.close()
-                conn.close()
-                return jsonify({
-                    'success': False,
-                    'message': f'⚠️ DİKKAT!\n{emp_name}\n{elsewhere[0]} bölgesinde\naçık girişiniz var!\nÖnce çıkış yapınız.',
-                    'type': 'warning'
-                }), 409
-
-            # Giriş yap
-            cur.execute("""
-                INSERT INTO attendance (employee_id, employee_name, date, start_time, location) 
+                INSERT INTO attendance (employee_id, employee_name, date, start_time, location)
                 VALUES (%s, %s, %s, %s, %s)
-            """, (employee_id, emp_name, today, now_time, location))
-
-            conn.commit()
-            cur.close()
-            conn.close()
-
-            return jsonify({
-                'success': True,
-                'message': f'✅ HOŞ GELDIN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}',
-                'type': 'success'
-            })
-
-    except ValueError as e:
-        return jsonify({
-            'success': False,
-            'message': f'❌ HATA: Geçersiz veri!',
-            'type': 'error'
-        }), 400
+            """, (user_id, emp_name, today, now_time, location))
+            message = f'✅ HOŞ GELDİN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}'
+            type_ = 'success'
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify({'success': True, 'message': message, 'type': type_})
+        
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': f'❌ HATA: {str(e)}',
-            'type': 'error'
-        }), 500
+        return jsonify({'success': False, 'message': f'❌ HATA: {str(e)}', 'type': 'error'}), 500
 
 # ==================== HEALTH CHECK ====================
 
@@ -806,6 +739,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
