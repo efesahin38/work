@@ -603,8 +603,8 @@ def signup():
         # User oluştur
         hashed_password = hash_password(password)
         cur.execute(
-            "INSERT INTO users (email, password, name, employee_id) VALUES (%s, %s, %s, %s) RETURNING id",
-            (email, hashed_password, name, emp_id)
+            "INSERT INTO users (email, password, name) VALUES (%s, %s, %s) RETURNING id",
+            (email, hashed_password, name)
         )
         user_id = cur.fetchone()[0]
         
@@ -635,7 +635,7 @@ def login():
         
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute("SELECT id, name, password, employee_id FROM users WHERE email = %s", (email,))
+        cur.execute("SELECT id, name, password FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
         
         if not user:
@@ -643,11 +643,16 @@ def login():
             conn.close()
             return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
         
-        user_id, name, hashed_password, employee_id = user
+        user_id, name, hashed_password = user
         if hash_password(password) != hashed_password:
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+        
+        # Personelin ID'sini employees tablosundan al
+        cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
+        emp_result = cur.fetchone()
+        employee_id = emp_result[0] if emp_result else user_id
         
         cur.close()
         conn.close()
@@ -657,7 +662,7 @@ def login():
             'message': 'Giriş başarılı!',
             'user_id': user_id,
             'user_name': name,
-            'employee_id': employee_id if employee_id else user_id
+            'employee_id': employee_id
         }), 200
     except Exception as e:
         print(f"❌ Login error: {str(e)}")
