@@ -570,35 +570,47 @@ def signup():
         name = data.get('name', '').strip()
         email = data.get('email', '').strip()
         password = data.get('password', '')
-        employee_id = data.get('employee_id')
         
-        if not name or not email or not password or not employee_id:
+        if not name or not email or not password:
             return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
+        
+        if len(password) < 6:
+            return jsonify({'success': False, 'message': 'Şifre en az 6 karakter olmalıdır!'}), 400
+        
+        if '@' not in email:
+            return jsonify({'success': False, 'message': 'Geçerli bir email giriniz!'}), 400
         
         conn = get_conn()
         cur = conn.cursor()
         
-        # Email kontrol
+        # ✅ Email kontrolü
         cur.execute("SELECT id FROM users WHERE email = %s", (email,))
         if cur.fetchone():
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
         
-        # Employee var mı kontrol et (name ile)
+        # ✅ İsim kontrolü - KATILIR
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
         existing_emp = cur.fetchone()
         
-        emp_id = None
-        if not existing_emp:
+        if existing_emp:
+            # İsim zaten var - email'i kontrol et
+            emp_id = existing_emp[0]
+            cur.execute("SELECT email FROM users WHERE email = %s AND name = %s", (email, name))
+            if cur.fetchone():
+                cur.close()
+                conn.close()
+                return jsonify({'success': False, 'message': 'Bu kullanıcı zaten kayıtlı!'}), 400
+            # Aynı isim, farklı email → Seçime bırak
+            # return jsonify({'success': False, 'message': 'Bu isim zaten sistemde var! Farklı bir isim kullanınız.'}), 400
+        else:
             # Yeni employee oluştur
             cur.execute(
                 "INSERT INTO employees (name) VALUES (%s) RETURNING id",
                 (name,)
             )
             emp_id = cur.fetchone()[0]
-        else:
-            emp_id = existing_emp[0]
         
         # User oluştur
         hashed_password = hash_password(password)
@@ -619,6 +631,7 @@ def signup():
             'user_name': name,
             'employee_id': emp_id
         }), 201
+        
     except Exception as e:
         print(f"❌ Signup error: {str(e)}")
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
@@ -1155,3 +1168,4 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
