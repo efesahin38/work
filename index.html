@@ -403,13 +403,13 @@
             resultDiv.classList.remove('show');
 
             try {
-                const response = await fetch('https://work-c5ps.onrender.com/api/checkin', {
+                const response = await fetch('/api/checkin', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        id: parseInt(id),
+                        employee_id: parseInt(id),
                         location: location
                     })
                 });
@@ -417,11 +417,14 @@
                 const data = await response.json();
                 
                 showResult(data.message, data.type);
-                document.getElementById('id').value = '';
-                document.getElementById('id').focus();
+                
+                if (data.success) {
+                    document.getElementById('id').value = '';
+                    document.getElementById('id').focus();
+                }
 
             } catch (error) {
-                showResult(`❌ HATA!\nBağlantı sorunu yaşandı.`, 'error');
+                showResult(`❌ HATA!\nBağlantı sorunu yaşandı:\n${error.message}`, 'error');
             } finally {
                 loader.classList.remove('show');
             }
@@ -452,5 +455,4 @@
         };
     </script>
 </body>
-
 </html>
