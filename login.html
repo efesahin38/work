@@ -42,7 +42,7 @@
         }
 
         .container {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 32px;
@@ -50,7 +50,7 @@
                 0 0 50px rgba(124, 58, 237, 0.4),
                 0 25px 80px rgba(0, 0, 0, 0.5),
                 inset 0 0 30px rgba(255, 255, 255, 0.05);
-            max-width: 460px;
+            max-width: 500px;
             width: 100%;
             overflow: hidden;
             border: 1px solid rgba(124, 58, 237, 0.3);
@@ -59,7 +59,7 @@
 
         .header {
             background: linear-gradient(135deg, #7c3aed, #ec4899);
-            padding: 60px 30px;
+            padding: 50px 30px;
             text-align: center;
             color: white;
             position: relative;
@@ -80,9 +80,9 @@
         }
 
         .header h1 {
-            font-size: 56px;
+            font-size: 48px;
             font-weight: 900;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             text-shadow: 
                 0 0 20px rgba(255,255,255,0.8),
                 0 0 40px rgba(124,58,237,0.8);
@@ -98,7 +98,7 @@
         }
 
         .header p {
-            font-size: 20px;
+            font-size: 18px;
             opacity: 0.95;
             position: relative;
             z-index: 2;
@@ -107,37 +107,37 @@
         }
 
         .form-container {
-            padding: 50px 40px;
+            padding: 45px 40px;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
             color: #e2e8f0;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             text-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
         }
 
         .form-group {
-            margin-bottom: 28px;
+            margin-bottom: 22px;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #e2e8f0;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 15px;
             text-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
         }
 
         input {
             width: 100%;
-            padding: 18px 20px;
+            padding: 15px 18px;
             border: 3px solid #7c3aed;
-            border-radius: 16px;
-            font-size: 16px;
+            border-radius: 14px;
+            font-size: 15px;
             background: rgba(30, 41, 59, 0.8);
             color: #e2e8f0;
             transition: all 0.4s ease;
@@ -153,29 +153,29 @@
             box-shadow: 
                 0 0 40px rgba(236, 72, 153, 0.6),
                 0 0 60px rgba(124, 58, 237, 0.4);
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
         input::placeholder {
-            color: rgba(226, 232, 240, 0.6);
+            color: rgba(226, 232, 240, 0.5);
         }
 
         button {
             width: 100%;
-            padding: 20px;
+            padding: 16px;
             background: linear-gradient(135deg, #7c3aed, #ec4899);
             color: white;
             border: none;
-            border-radius: 16px;
+            border-radius: 14px;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.5s ease;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             box-shadow: 
                 0 0 40px rgba(124, 58, 237, 0.6),
                 0 10px 30px rgba(0, 0, 0, 0.4);
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             position: relative;
             overflow: hidden;
         }
@@ -191,7 +191,7 @@
         }
 
         button:hover {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
             box-shadow: 
                 0 0 80px rgba(236, 72, 153, 0.8),
                 0 20px 50px rgba(124, 58, 237, 0.5);
@@ -202,14 +202,14 @@
         }
 
         button:active {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .toggle-link {
             text-align: center;
             color: #94a3b8;
-            font-size: 16px;
-            margin-top: 10px;
+            font-size: 15px;
+            margin-top: 8px;
         }
 
         .toggle-link a {
@@ -228,19 +228,19 @@
 
         .error {
             color: #fca5a5;
-            font-size: 15px;
-            margin-top: 15px;
+            font-size: 14px;
             text-align: center;
-            padding: 16px;
+            padding: 14px;
             background: rgba(239, 68, 68, 0.15);
-            border-radius: 12px;
+            border-radius: 10px;
             border: 2px solid rgba(239, 68, 68, 0.4);
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
             backdrop-filter: blur(8px);
+            margin-bottom: 15px;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         .form-section {
@@ -260,29 +260,54 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
             .container {
-                margin: 20px;
                 border-radius: 24px;
             }
             .header {
-                padding: 50px 20px;
+                padding: 40px 25px;
             }
             .header h1 {
-                font-size: 44px;
+                font-size: 40px;
             }
             .header p {
-                font-size: 18px;
+                font-size: 16px;
             }
             .form-container {
-                padding: 40px 30px;
+                padding: 35px 25px;
             }
             h2 {
-                font-size: 24px;
+                font-size: 22px;
+                margin-bottom: 25px;
+            }
+            label {
+                font-size: 14px;
+            }
+            input {
+                padding: 14px 16px;
+                font-size: 14px;
             }
             button {
-                padding: 18px;
-                font-size: 17px;
+                padding: 14px;
+                font-size: 15px;
+            }
+            .form-group {
+                margin-bottom: 18px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                border-radius: 20px;
+            }
+            .header {
+                padding: 35px 20px;
+            }
+            .header h1 {
+                font-size: 36px;
+            }
+            .form-container {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -295,9 +320,12 @@
         </div>
 
         <div class="form-container">
+            <!-- LOGIN FORMU -->
             <div id="login-section" class="form-section active">
                 <h2>Giriş Yap</h2>
                 
+                <div id="login-error" class="error hidden"></div>
+
                 <div class="form-group">
                     <label for="login-email">📧 Email:</label>
                     <input type="email" id="login-email" placeholder="Email adresiniz...">
@@ -310,15 +338,16 @@
 
                 <button onclick="handleLogin()">Giriş Yap</button>
 
-                <div id="login-error" class="error hidden"></div>
-
                 <div class="toggle-link">
                     Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
                 </div>
             </div>
 
+            <!-- SIGNUP FORMU -->
             <div id="signup-section" class="form-section">
                 <h2>Kayıt Ol</h2>
+
+                <div id="signup-error" class="error hidden"></div>
                 
                 <div class="form-group">
                     <label for="signup-name">👤 Ad Soyad:</label>
@@ -340,14 +369,7 @@
                     <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
                 </div>
 
-                <div class="form-group">
-                    <label for="signup-id">🆔 Kimlik No:</label>
-                    <input type="number" id="signup-id" placeholder="Personel kimlik numaranız...">
-                </div>
-
                 <button onclick="handleSignup()">Kayıt Ol</button>
-
-                <div id="signup-error" class="error hidden"></div>
 
                 <div class="toggle-link">
                     Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
@@ -358,15 +380,20 @@
 
     <script>
         function toggleForm() {
-            document.getElementById('login-section').classList.toggle('active');
-            document.getElementById('signup-section').classList.toggle('active');
-            document.getElementById('login-error').classList.add('hidden');
-            document.getElementById('signup-error').classList.add('hidden');
+            const loginSection = document.getElementById('login-section');
+            const signupSection = document.getElementById('signup-section');
+            const loginError = document.getElementById('login-error');
+            const signupError = document.getElementById('signup-error');
+
+            loginSection.classList.toggle('active');
+            signupSection.classList.toggle('active');
+            loginError.classList.add('hidden');
+            signupError.classList.add('hidden');
         }
 
         async function handleLogin() {
             const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value;
+            const password = document.getElementById('login-password').value.trim();
             const errorDiv = document.getElementById('login-error');
 
             if (!email || !password) {
@@ -376,7 +403,7 @@
             }
 
             try {
-                const response = await fetch('https://work-c5ps.onrender.com/api/login', {
+                const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email, password})
@@ -388,26 +415,26 @@
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
                     localStorage.setItem('employee_id', data.employee_id);
-                    window.location.href = 'https://work-c5ps.onrender.com/dashboard';
+                    window.location.href = '/dashboard';
                 } else {
                     errorDiv.classList.remove('hidden');
                     errorDiv.textContent = '❌ ' + data.message;
                 }
             } catch (error) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Hata: ' + error.message;
+                errorDiv.textContent = '❌ Bağlantı hatası!';
+                console.error(error);
             }
         }
 
         async function handleSignup() {
             const name = document.getElementById('signup-name').value.trim();
             const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('signup-confirm').value;
-            const employee_id = document.getElementById('signup-id').value.trim();
+            const password = document.getElementById('signup-password').value.trim();
+            const confirm = document.getElementById('signup-confirm').value.trim();
             const errorDiv = document.getElementById('signup-error');
 
-            if (!name || !email || !password || !confirm || !employee_id) {
+            if (!name || !email || !password || !confirm) {
                 errorDiv.classList.remove('hidden');
                 errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
                 return;
@@ -426,10 +453,10 @@
             }
 
             try {
-                const response = await fetch('https://work-c5ps.onrender.com/api/signup', {
+                const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name, email, password, employee_id: parseInt(employee_id)})
+                    body: JSON.stringify({name, email, password})
                 });
 
                 const data = await response.json();
@@ -438,23 +465,33 @@
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
                     localStorage.setItem('employee_id', data.employee_id);
-                    window.location.href = 'https://work-c5ps.onrender.com/dashboard';
+                    window.location.href = '/dashboard';
                 } else {
                     errorDiv.classList.remove('hidden');
                     errorDiv.textContent = '❌ ' + data.message;
                 }
             } catch (error) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Hata: ' + error.message;
+                errorDiv.textContent = '❌ Bağlantı hatası!';
+                console.error(error);
             }
         }
 
-        document.getElementById('login-password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin();
+        // Enter tuşu ile gönder
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const loginSection = document.getElementById('login-section');
+                if (loginSection.classList.contains('active')) {
+                    handleLogin();
+                } else {
+                    handleSignup();
+                }
+            }
         });
 
-        document.getElementById('signup-confirm').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSignup();
+        // İlk odak
+        window.addEventListener('load', () => {
+            document.getElementById('login-email').focus();
         });
     </script>
 </body>
