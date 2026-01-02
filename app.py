@@ -745,13 +745,13 @@ def check_in():
             'message': '❌ HATA!\nGeçersiz ID formatı.',
             'type': 'error'
         })
-    except Exception as e:
-        print(f"Check-in error: {str(e)}")
-        return jsonify({
-            'success': False,
-            'message': f'❌ Sunucu Hatası!\nLütfen tekrar deneyin.',
-            'type': 'error'
-        })
+  except Exception as e:
+    print(f"❌ Check-in error: {str(e)} | Data: {data}")  # Detaylı log için
+    return jsonify({
+        'success': False,
+        'message': f'❌ Hata!\n{str(e)}',  # Test için detay göster, sonra kaldır
+        'type': 'error'
+    })
 
 # ==================== HEALTH CHECK ====================
 
@@ -789,6 +789,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
