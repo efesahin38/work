@@ -450,71 +450,67 @@
         }
     </style>
 </head>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <!-- Önceki HEAD kısmı aynı kalıyor, sadece title'ı değiştiriyorum -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 PROSPANDO – Anmeldung</title>
+    <!-- Stil kısmı tamamen aynı kalıyor (kullanıcı paylaşmadı ama önceki gibi varsayıyorum) -->
+</head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🎯 PROSPANDO</h1>
-            <p>Personel Yoklama Sistemi</p>
+            <p>Personal-Anwesenheitssystem</p>
         </div>
-
         <div class="form-container">
             <!-- LOGIN FORMU -->
             <div id="login-section" class="form-section active">
-                <h2>Giriş Yap</h2>
-                
+                <h2>Anmelden</h2>
+               
                 <div id="login-error" class="error hidden"></div>
                 <div id="login-success" class="success hidden"></div>
-
                 <div class="form-group">
-                    <label for="login-email">📧 Email:</label>
-                    <input type="email" id="login-email" placeholder="Email adresiniz..." autocomplete="email">
+                    <label for="login-email">📧 E-Mail:</label>
+                    <input type="email" id="login-email" placeholder="Ihre E-Mail-Adresse..." autocomplete="email">
                 </div>
-
                 <div class="form-group">
-                    <label for="login-password">🔐 Şifre:</label>
-                    <input type="password" id="login-password" placeholder="Şifreniz..." autocomplete="current-password">
+                    <label for="login-password">🔐 Passwort:</label>
+                    <input type="password" id="login-password" placeholder="Ihr Passwort..." autocomplete="current-password">
                 </div>
-
-                <button type="button" onclick="handleLogin()">Giriş Yap</button>
-
+                <button type="button" onclick="handleLogin()">Anmelden</button>
                 <div class="toggle-link">
-                    Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
+                    Sie haben noch kein Konto? <a onclick="toggleForm()">Registrieren</a>
                 </div>
             </div>
-
             <!-- SIGNUP FORMU -->
             <div id="signup-section" class="form-section">
-                <h2>Kayıt Ol</h2>
-
+                <h2>Registrieren</h2>
                 <div id="signup-error" class="error hidden"></div>
                 <div id="signup-success" class="success hidden"></div>
-                
+               
                 <div class="form-group">
-                    <label for="signup-name">👤 Ad Soyad:</label>
-                    <input type="text" id="signup-name" placeholder="Ad Soyadınız..." autocomplete="name">
+                    <label for="signup-name">👤 Vor- und Nachname:</label>
+                    <input type="text" id="signup-name" placeholder="Ihr Vor- und Nachname..." autocomplete="name">
                 </div>
-
                 <div class="form-group">
-                    <label for="signup-email">📧 Email:</label>
-                    <input type="email" id="signup-email" placeholder="Email adresiniz..." autocomplete="email">
+                    <label for="signup-email">📧 E-Mail:</label>
+                    <input type="email" id="signup-email" placeholder="Ihre E-Mail-Adresse..." autocomplete="email">
                 </div>
-
                 <div class="form-group">
-                    <label for="signup-password">🔐 Şifre:</label>
-                    <input type="password" id="signup-password" placeholder="Şifreniz..." autocomplete="new-password">
+                    <label for="signup-password">🔐 Passwort:</label>
+                    <input type="password" id="signup-password" placeholder="Ihr Passwort..." autocomplete="new-password">
                 </div>
-
-                
-
-                <button type="button" onclick="handleSignup()">Kayıt Ol</button>
-
+               
+                <button type="button" onclick="handleSignup()">Registrieren</button>
                 <div class="toggle-link">
-                    Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
+                    Sie haben bereits ein Konto? <a onclick="toggleForm()">Anmelden</a>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
         const loginSection = document.getElementById('login-section');
@@ -524,19 +520,15 @@
         }
     });
         const BACKEND_URL = 'https://work-c5ps.onrender.com';
-
-
         function toggleForm() {
             const loginSection = document.getElementById('login-section');
             const signupSection = document.getElementById('signup-section');
             const loginError = document.getElementById('login-error');
             const signupError = document.getElementById('signup-error');
-
             loginSection.classList.toggle('active');
             signupSection.classList.toggle('active');
             loginError.classList.add('hidden');
             signupError.classList.add('hidden');
-
             // Odağı sıfırla
             if (loginSection.classList.contains('active')) {
                 setTimeout(() => document.getElementById('login-email').focus(), 100);
@@ -544,41 +536,32 @@
                 setTimeout(() => document.getElementById('signup-name').focus(), 100);
             }
         }
-
         async function handleLogin() {
             const emailInput = document.getElementById('login-email');
             const passwordInput = document.getElementById('login-password');
             const errorDiv = document.getElementById('login-error');
-
             const email = emailInput.value ? emailInput.value.trim() : '';
             const password = passwordInput.value ? passwordInput.value.trim() : '';
-
             console.log('Email değeri:', email, 'Uzunluk:', email.length);
             console.log('Şifre değeri:', password, 'Uzunluk:', password.length);
-
             errorDiv.classList.add('hidden');
-
             if (!email || !password) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen email ve şifre alanlarını doldurunuz!';
+                errorDiv.textContent = '❌ Bitte füllen Sie die Felder E-Mail und Passwort aus!';
                 return;
             }
-
             if (!email.includes('@')) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Geçerli bir email giriniz!';
+                errorDiv.textContent = '❌ Bitte geben Sie eine gültige E-Mail-Adresse ein!';
                 return;
             }
-
             try {
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email, password})
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
@@ -586,64 +569,48 @@
                     window.location.href = `${BACKEND_URL}/dashboard`;
                 } else {
                     errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = '❌ ' + (data.message || 'Giriş başarısız!');
+                    errorDiv.textContent = '❌ ' + (data.message || 'Anmeldung fehlgeschlagen!');
                 }
             } catch (error) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.';
-                console.error('Login hatasıः', error);
+                errorDiv.textContent = '❌ Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.';
+                console.error('Login hatası:', error);
             }
         }
-
         async function handleSignup() {
             const nameInput = document.getElementById('signup-name');
             const emailInput = document.getElementById('signup-email');
             const passwordInput = document.getElementById('signup-password');
-           
+          
             const errorDiv = document.getElementById('signup-error');
-
             const name = nameInput.value ? nameInput.value.trim() : '';
             const email = emailInput.value ? emailInput.value.trim() : '';
             const password = passwordInput.value ? passwordInput.value.trim() : '';
-            const confirm = confirmInput.value ? confirmInput.value.trim() : '';
-
+            const confirm = passwordInput.value ? passwordInput.value.trim() : ''; // Not: confirm alanı yoktu, aynı şifreyle kontrol ediliyor gibi görünüyor
             console.log('Ad:', name, 'Email:', email, 'Şifre:', password.length, 'Onayla:', confirm.length);
-
             errorDiv.classList.add('hidden');
-
-            if (!name || !email || !password || !confirm) {
+            if (!name || !email || !password) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus!';
                 return;
             }
-
             if (!email.includes('@')) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Geçerli bir email giriniz!';
+                errorDiv.textContent = '❌ Bitte geben Sie eine gültige E-Mail-Adresse ein!';
                 return;
             }
-
-            if (password !== confirm) {
-                errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Şifreler eşleşmiyor!';
-                return;
-            }
-
             if (password.length < 6) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Şifre en az 6 karakter olmalıdır!';
+                errorDiv.textContent = '❌ Das Passwort muss mindestens 6 Zeichen lang sein!';
                 return;
             }
-
             try {
                 const response = await fetch(`${BACKEND_URL}/api/signup`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({name, email, password})
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
@@ -651,15 +618,14 @@
                     window.location.href = `${BACKEND_URL}/dashboard`;
                 } else {
                     errorDiv.classList.remove('hidden');
-                    errorDiv.textContent = '❌ ' + (data.message || 'Kayıt başarısız!');
+                    errorDiv.textContent = '❌ ' + (data.message || 'Registrierung fehlgeschlagen!');
                 }
             } catch (error) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.';
+                errorDiv.textContent = '❌ Verbindung zum Server fehlgeschlagen. Bitte versuchen Sie es später erneut.';
                 console.error('Signup hatası:', error);
             }
         }
-
         // Enter tuşu ile gönder
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -671,7 +637,6 @@
                 }
             }
         });
-
         // İlk odak
         window.addEventListener('load', () => {
             document.getElementById('login-email').focus();
