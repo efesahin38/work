@@ -20,7 +20,7 @@
             justify-content: center;
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -52,7 +52,8 @@
                 inset 0 0 30px rgba(255, 255, 255, 0.05);
             max-width: 500px;
             width: 100%;
-            overflow: hidden;
+            min-height: auto;
+            overflow: visible;
             border: 1px solid rgba(124, 58, 237, 0.3);
             position: relative;
         }
@@ -64,6 +65,7 @@
             color: white;
             position: relative;
             overflow: hidden;
+            border-radius: 32px 32px 0 0;
         }
 
         .header::before {
@@ -90,6 +92,7 @@
             position: relative;
             z-index: 2;
             animation: neonGlow 2s ease-in-out infinite alternate;
+            word-break: break-word;
         }
 
         @keyframes neonGlow {
@@ -104,10 +107,12 @@
             z-index: 2;
             letter-spacing: 1px;
             text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            word-break: break-word;
         }
 
         .form-container {
             padding: 45px 40px;
+            width: 100%;
         }
 
         h2 {
@@ -121,6 +126,7 @@
 
         .form-group {
             margin-bottom: 22px;
+            width: 100%;
         }
 
         label {
@@ -130,6 +136,7 @@
             font-weight: 600;
             font-size: 15px;
             text-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
+            word-break: break-word;
         }
 
         input {
@@ -210,6 +217,7 @@
             color: #94a3b8;
             font-size: 15px;
             margin-top: 8px;
+            word-break: break-word;
         }
 
         .toggle-link a {
@@ -237,6 +245,7 @@
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
             backdrop-filter: blur(8px);
             margin-bottom: 15px;
+            word-break: break-word;
         }
 
         .success {
@@ -250,6 +259,7 @@
             box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
             backdrop-filter: blur(8px);
             margin-bottom: 15px;
+            word-break: break-word;
         }
 
         .hidden {
@@ -273,17 +283,169 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 600px) {
-            .container { border-radius: 24px; }
-            .header { padding: 40px 25px; }
-            .header h1 { font-size: 40px; }
-            .header p { font-size: 16px; }
-            .form-container { padding: 35px 25px; }
-            h2 { font-size: 22px; margin-bottom: 25px; }
-            label { font-size: 14px; }
-            input { padding: 14px 16px; font-size: 14px; }
-            button { padding: 14px; font-size: 15px; }
-            .form-group { margin-bottom: 18px; }
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                border-radius: 24px;
+                max-width: 100%;
+            }
+
+            .header {
+                padding: 40px 20px;
+                border-radius: 24px 24px 0 0;
+            }
+
+            .header h1 {
+                font-size: 36px;
+                letter-spacing: 2px;
+            }
+
+            .header p {
+                font-size: 16px;
+                letter-spacing: 0.5px;
+            }
+
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 22px;
+                margin-bottom: 25px;
+            }
+
+            label {
+                font-size: 14px;
+            }
+
+            input {
+                padding: 13px 15px;
+                font-size: 14px;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 15px;
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 18px;
+            }
+
+            .toggle-link {
+                font-size: 14px;
+            }
+
+            .error, .success {
+                font-size: 13px;
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 20px;
+            }
+
+            .header {
+                padding: 35px 15px;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .header h1 {
+                font-size: 32px;
+                letter-spacing: 1.5px;
+                margin-bottom: 6px;
+            }
+
+            .header p {
+                font-size: 14px;
+                letter-spacing: 0.5px;
+            }
+
+            .form-container {
+                padding: 25px 15px;
+            }
+
+            h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            input {
+                padding: 12px 13px;
+                font-size: 13px;
+                border: 2px solid #7c3aed;
+            }
+
+            button {
+                padding: 13px;
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .toggle-link {
+                font-size: 13px;
+                margin-top: 6px;
+            }
+
+            .error, .success {
+                font-size: 12px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header {
+                padding: 30px 12px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .form-container {
+                padding: 20px 12px;
+            }
+
+            h2 {
+                font-size: 18px;
+                margin-bottom: 18px;
+            }
+
+            input {
+                padding: 11px 12px;
+                font-size: 12px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
@@ -382,7 +544,6 @@
             const passwordInput = document.getElementById('login-password');
             const errorDiv = document.getElementById('login-error');
 
-            // Değerleri al ve console'da göster
             const email = emailInput.value ? emailInput.value.trim() : '';
             const password = passwordInput.value ? passwordInput.value.trim() : '';
 
