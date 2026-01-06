@@ -129,7 +129,7 @@ def index():
             justify-content: center;
             padding: 20px;
             position: relative;
-            overflow-y: hidden;
+            overflow: hidden;
         }
 
         body::before {
@@ -704,7 +704,7 @@ def dashboard():
             padding: 20px;
             padding-top: 100px;
             position: relative;
-            overflow-y: hidden;
+            overflow: hidden;
         }
 
         body::before {
@@ -1170,6 +1170,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
