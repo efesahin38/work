@@ -519,6 +519,13 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const loginSection = document.getElementById('login-section');
+        if (loginSection) {
+            loginSection.classList.add('active');
+            console.log('Form loaded successfully');
+        }
+    });
         const BACKEND_URL = '<https://work-c5ps.onrender.com>';
 
         function toggleForm() {
@@ -674,5 +681,6 @@
     </script>
 </body>
 </html>
+
 
 
