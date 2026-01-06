@@ -129,7 +129,7 @@ def index():
             justify-content: center;
             padding: 20px;
             position: relative;
-            overflow: hidden;
+            overflow-y: hidden;
         }
 
         body::before {
@@ -160,10 +160,8 @@ def index():
                 0 25px 80px rgba(0, 0, 0, 0.5),
                 inset 0 0 30px rgba(255, 255, 255, 0.05);
             max-width: 460px;
+            height: auto; 
             width: 100%;
-            max-height: 90vh;        /* ← EKLE */
-            overflow-y: auto;        /* ← EKLE */
-            overflow-x: hidden;      /* ← EKLE */
             border: 1px solid rgba(124, 58, 237, 0.3);
             position: relative;
         }
@@ -706,7 +704,7 @@ def dashboard():
             padding: 20px;
             padding-top: 100px;
             position: relative;
-            overflow: hidden;
+            overflow-y: hidden;
         }
 
         body::before {
@@ -774,9 +772,7 @@ def dashboard():
                 inset 0 0 30px rgba(255, 255, 255, 0.05);
             max-width: 460px;
             width: 100%;
-            max-height: 90vh;        /* ← EKLE */
-            overflow-y: auto;        /* ← EKLE */
-            overflow-x: hidden;      /* ← EKLE */
+            height: auto; 
             border: 1px solid rgba(124, 58, 237, 0.3);
             position: relative;
         }
@@ -1174,6 +1170,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
