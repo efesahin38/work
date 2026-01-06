@@ -1,4 +1,4 @@
- import os
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import psycopg
@@ -1168,4 +1168,5 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
