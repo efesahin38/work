@@ -150,17 +150,20 @@ def index():
             50% { opacity: 0.7; }
         }
 
-       .container {
+     .container {
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 32px;
-    box-shadow: ...;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);  /* ... olan yeri tam shadow ile değiştir */
     max-width: 460px;
     width: 100%;
-    /* max-height ve overflow satırları silindi */
+    max-height: 90vh;          /* Ekrandan taşmayı önler */
+    overflow-y: auto;          /* İçerik fazla olursa scroll çıkar */
     border: 1px solid rgba(124, 58, 237, 0.3);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
         .header {
@@ -758,17 +761,20 @@ def dashboard():
             box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
         }
 
-      .container {
+    .container {
     background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-radius: 32px;
-    box-shadow: ...;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);  /* ... olan yeri tam shadow ile değiştir */
     max-width: 460px;
     width: 100%;
-    /* max-height ve overflow satırları silindi */
+    max-height: 85vh;          /* Ekrandan taşmayı önler */
+    overflow-y: auto;          /* İçerik fazla olursa scroll çıkar */
     border: 1px solid rgba(124, 58, 237, 0.3);
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
         .welcome {
@@ -1164,6 +1170,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
