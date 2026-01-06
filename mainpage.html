@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 PROSPANDO YOKLAMA</title>
+    <title>🎯 PROSPANDO – Anmeldung</title>
     <style>
         * {
             margin: 0;
@@ -347,12 +347,12 @@
 <body>
     <div class="container">
         <div class="title">🎯 PROSPANDO</div>
-        <div class="subtitle">PERSONEL YOKLAMA SİSTEMİ</div>
+        <div class="subtitle">PROSPANDO – Anmeldung</div>
 
         <div class="form-group input-row">
-            <label for="location">📍 BÖLGE:</label>
+            <label for="location">📍 REGION:</label>
             <select id="location">
-                <option value="">Bölge seçiniz...</option>
+                <option value="">Bitte Region auswählen...</option>
                 <option value="Mitte">🏢 Mitte</option>
                 <option value="Spandau">🏭 Spandau</option>
                 <option value="Steglitz">🏪 Steglitz</option>
@@ -362,21 +362,21 @@
         </div>
 
         <div class="form-group input-row">
-            <label for="id">🆔 KİMLİK:</label>
+            <label for="id">🆔 ID:</label>
             <input 
                 type="text" 
                 id="id" 
-                placeholder="ID numarasını giriniz..."
+                placeholder="Bitte ID-Nummer eingeben..."
                 inputmode="numeric"
                 autocomplete="off"
             >
         </div>
 
-        <button onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
+        <button onclick="checkIn()">▶ EIN- / AUSCHECKEN</button>
 
         <div class="loader">
             <div class="spinner"></div>
-            <div class="loader-text">İşleniyor, lütfen bekleyin...</div>
+            <div class="loader-text">Wird verarbeitet, bitte warten...</div>
         </div>
 
         <div id="result" class="result"></div>
@@ -390,12 +390,12 @@
             const loader = document.querySelector('.loader');
 
             if (!id) {
-                showResult('❌ HATA!\nLütfen ID giriniz.', 'error');
+                showResult('❌ FEHLER!\nBitte ID eingeben.', 'error');
                 return;
             }
 
             if (!location) {
-                showResult('❌ HATA!\nLütfen bölge seçiniz.', 'error');
+                showResult('❌ FEHLER!\nBitte Region auswählen.', 'error');
                 return;
             }
 
@@ -424,7 +424,7 @@
                 }
 
             } catch (error) {
-                showResult(`❌ HATA!\nBağlantı sorunu yaşandı:\n${error.message}`, 'error');
+                showResult(`❌ FEHLER!\nVerbindungsproblem:\n${error.message}`, 'error');
             } finally {
                 loader.classList.remove('show');
             }
@@ -456,3 +456,4 @@
     </script>
 </body>
 </html>
+
