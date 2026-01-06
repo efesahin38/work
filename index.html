@@ -504,10 +504,7 @@
                     <input type="password" id="signup-password" placeholder="Şifreniz..." autocomplete="new-password">
                 </div>
 
-                <div class="form-group">
-                    <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
-                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz..." autocomplete="new-password">
-                </div>
+                
 
                 <button type="button" onclick="handleSignup()">Kayıt Ol</button>
 
@@ -601,7 +598,7 @@
             const nameInput = document.getElementById('signup-name');
             const emailInput = document.getElementById('signup-email');
             const passwordInput = document.getElementById('signup-password');
-            const confirmInput = document.getElementById('signup-confirm');
+           
             const errorDiv = document.getElementById('signup-error');
 
             const name = nameInput.value ? nameInput.value.trim() : '';
@@ -681,6 +678,7 @@
     </script>
 </body>
 </html>
+
 
 
 
