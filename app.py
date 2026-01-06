@@ -151,20 +151,17 @@ def index():
         }
 
        .container {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 32px;
-            box-shadow: 
-                0 0 50px rgba(124, 58, 237, 0.4),
-                0 25px 80px rgba(0, 0, 0, 0.5),
-                inset 0 0 30px rgba(255, 255, 255, 0.05);
-            max-width: 460px;
-            height: auto; 
-            width: 100%;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            position: relative;
-        }
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 32px;
+    box-shadow: ...;
+    max-width: 460px;
+    width: 100%;
+    /* max-height ve overflow satırları silindi */
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    position: relative;
+}
 
         .header {
             background: linear-gradient(135deg, #7c3aed, #ec4899);
@@ -762,20 +759,17 @@ def dashboard():
         }
 
       .container {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 32px;
-            box-shadow: 
-                0 0 50px rgba(124, 58, 237, 0.4),
-                0 25px 80px rgba(0, 0, 0, 0.5),
-                inset 0 0 30px rgba(255, 255, 255, 0.05);
-            max-width: 460px;
-            width: 100%;
-            height: auto; 
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            position: relative;
-        }
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 32px;
+    box-shadow: ...;
+    max-width: 460px;
+    width: 100%;
+    /* max-height ve overflow satırları silindi */
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    position: relative;
+}
 
         .welcome {
             background: rgba(124, 58, 237, 0.2);
@@ -1170,6 +1164,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
