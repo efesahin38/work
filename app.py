@@ -17,7 +17,7 @@ def get_conn():
         conn_string = os.getenv('DATABASE_URL')
         
         if not conn_string:
-            raise Exception("DATABASE_URL ortam değişkeni tanımlı değil! Render Environment'ta eklediğinden emin ol.")
+            raise Exception("Die Umgebungsvariable DATABASE_URL ist nicht definiert! Stellen Sie sicher, dass Sie sie in der Renderumgebung hinzufügen.")
         
         conn = psycopg.connect(
             conn_string,
@@ -97,10 +97,10 @@ def init_db():
         conn.commit()
         cur.close()
         conn.close()
-        print("✅ Tablolar başarıyla oluşturuldu/kontrol edildi")
+        print("✅ Tabellen wurden erfolgreich erstellt/geprüft.")
         return True
     except Exception as e:
-        print(f"❌ Tablo oluşturma hatası: {str(e)}")
+        print(f"❌ Fehler bei der Tabellenerstellung: {str(e)}")
         return False
 
 # ==================== AUTH ROUTES ====================
@@ -112,7 +112,7 @@ def index():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 PROSPANDO - Giriş</title>
+    <title>🎯 PROSPANDO -Eingang</title>
     <style>
         * { 
             margin: 0; 
@@ -400,61 +400,61 @@ def index():
     <div class="container">
         <div class="header">
             <h1>🎯 PROSPANDO</h1>
-            <p>Personel Yoklama Sistemi</p>
+            <p>Personalanwesenheitssystem</p>
         </div>
 
         <div class="form-container">
             <div id="login-section" class="form-section active">
-                <h2>Giriş Yap</h2>
+                <h2>Einloggen</h2>
                 
                 <div class="form-group">
                     <label for="login-email">📧 Email:</label>
-                    <input type="email" id="login-email" placeholder="Email adresiniz...">
+                    <input type="email" id="login-email" placeholder="Ihre E-Mail-Adresse...">
                 </div>
 
                 <div class="form-group">
-                    <label for="login-password">🔐 Şifre:</label>
-                    <input type="password" id="login-password" placeholder="Şifreniz...">
+                    <label for="login-password">🔐 Password:</label>
+                    <input type="password" id="login-password" placeholder="Ihr Passwort...">
                 </div>
 
-                <button onclick="handleLogin()">Giriş Yap</button>
+                <button onclick="handleLogin()">Einloggen</button>
 
                 <div id="login-error" class="error hidden"></div>
 
                 <div class="toggle-link">
-                    Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
+                    Hesabınız yok mu? <a onclick="toggleForm()">Melden Sie sich an/a>
                 </div>
             </div>
 
             <div id="signup-section" class="form-section">
-                <h2>Kayıt Ol</h2>
+                <h2>Melden Sie sich an</h2>
                 
                 <div class="form-group">
-                    <label for="signup-name">👤 Ad Soyad:</label>
-                    <input type="text" id="signup-name" placeholder="Ad Soyadınız...">
+                    <label for="signup-name">👤 Vorname Nachname:</label>
+                    <input type="text" id="signup-name" placeholder=" Ihr Vorname Nachname...">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-email">📧 Email:</label>
-                    <input type="email" id="signup-email" placeholder="Email adresiniz...">
+                    <input type="email" id="signup-email" placeholder="Ihre E-Mail-Adresse...">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-password">🔐 Şifre:</label>
-                    <input type="password" id="signup-password" placeholder="Şifreniz...">
+                    <input type="password" id="signup-password" placeholder="Ihr Passwort...">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
-                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
+                    <input type="password" id="signup-confirm" placeholder="Bitte geben Sie das Passwort erneut ein....">
                 </div>
 
-                <button onclick="handleSignup()">Kayıt Ol</button>
+                <button onclick="handleSignup()">Melden Sie sich an</button>
 
                 <div id="signup-error" class="error hidden"></div>
 
                 <div class="toggle-link">
-                    Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
+                    Zaten hesabınız var mı? <a onclick="toggleForm()">Login</a>
                 </div>
             </div>
         </div>
@@ -475,7 +475,7 @@ def index():
 
             if (!email || !password) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus!';
                 return;
             }
 
@@ -512,19 +512,19 @@ def index():
 
             if (!name || !email || !password || !confirm) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus!';
                 return;
             }
 
             if (password !== confirm) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Şifreler eşleşmiyor!';
+                errorDiv.textContent = '❌ Die Passwörter stimmen nicht überein.!';
                 return;
             }
 
             if (password.length < 6) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Şifre en az 6 karakter olmalıdır!';
+                errorDiv.textContent = '❌ Das Passwort muss mindestens 6 Zeichen lang sein!';
                 return;
             }
 
@@ -572,13 +572,13 @@ def signup():
         password = data.get('password', '')
         
         if not name or not email or not password:
-            return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
+            return jsonify({'success': False, 'message': 'Bitte füllen Sie alle Felder aus!'}), 400
         
         if len(password) < 6:
-            return jsonify({'success': False, 'message': 'Şifre en az 6 karakter olmalıdır!'}), 400
+            return jsonify({'success': False, 'message': 'Das Passwort muss mindestens 6 Zeichen lang sein!'}), 400
         
         if '@' not in email:
-            return jsonify({'success': False, 'message': 'Geçerli bir email giriniz!'}), 400
+            return jsonify({'success': False, 'message': 'Bitte geben Sie eine gültige E-Mail-Adresse ein!'}), 400
         
         conn = get_conn()
         cur = conn.cursor()
@@ -588,7 +588,7 @@ def signup():
         if cur.fetchone():
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
+            return jsonify({'success': False, 'message': 'Diese E-Mail ist bereits registriert!'}), 400
         
         # ✅ İsim kontrolü - KATILIR
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
@@ -601,7 +601,7 @@ def signup():
             if cur.fetchone():
                 cur.close()
                 conn.close()
-                return jsonify({'success': False, 'message': 'Bu kullanıcı zaten kayıtlı!'}), 400
+                return jsonify({'success': False, 'message': 'Dieser Benutzer ist bereits registriert!'}), 400
             # Aynı isim, farklı email → Seçime bırak
             # return jsonify({'success': False, 'message': 'Bu isim zaten sistemde var! Farklı bir isim kullanınız.'}), 400
         else:
@@ -644,7 +644,7 @@ def login():
         password = data.get('password', '')
         
         if not email or not password:
-            return jsonify({'success': False, 'message': 'Email ve şifre gerekli!'}), 400
+            return jsonify({'success': False, 'message': 'E-Mail und Passwort erforderlich!'}), 400
         
         conn = get_conn()
         cur = conn.cursor()
@@ -654,13 +654,13 @@ def login():
         if not user:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+            return jsonify({'success': False, 'message': 'E-Mail-Adresse oder Passwort sind falsch!'}), 401
         
         user_id, name, hashed_password = user
         if hash_password(password) != hashed_password:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+            return jsonify({'success': False, 'message': 'E-Mail-Adresse oder Passwort sind falsch!'}), 401
         
         # Personelin ID'sini employees tablosundan al
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
@@ -935,17 +935,17 @@ def dashboard():
 <body>
     <div class="navbar">
         <div><h1>🎯 PROSPANDO</h1></div>
-        <div><button onclick="logout()">Çıkış Yap</button></div>
+        <div><button onclick="logout()">Abmelden</button></div>
     </div>
     <div class="container">
         <div class="welcome">
             👋 Hoş geldiniz, <span id="user-name"></span>!
         </div>
-        <div class="title">PERSONEL YOKLAMA SİSTEMİ</div>
+        <div class="title">Anwesenheitssystem für Mitarbeiter</div>
         <div class="form-group input-row">
-            <label for="location">📍 BÖLGE:</label>
+            <label for="location">📍 BEREICH:</label>
             <select id="location">
-                <option value="">Bölge seçiniz...</option>
+                <option value="">Bereich auswählen...</option>
                 <option value="Mitte">🏢 Mitte</option>
                 <option value="Spandau">🏭 Spandau</option>
                 <option value="Steglitz">🏪 Steglitz</option>
@@ -953,7 +953,7 @@ def dashboard():
                 <option value="Charlottenburg">🛖️ Charlottenburg</option>
             </select>
         </div>
-        <button class="check-btn" onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
+        <button class="check-btn" onclick="checkIn()">▶ EINGANG / AUSGANG</button>
         <div id="result" class="result"></div>
     </div>
     <script>
@@ -972,7 +972,7 @@ def dashboard():
             const location = document.getElementById('location').value;
             const employeeId = localStorage.getItem('employee_id');
             if (!location) {
-                showResult('❌ HATA!\\nLütfen bölge seçiniz.', 'error');
+                showResult('❌ FEHLER!\nBitte wählen Sie eine Region aus.', 'error');
                 return;
             }
             try {
@@ -991,7 +991,7 @@ def dashboard():
                     document.getElementById('location').focus();
                 }
             } catch (error) {
-                showResult('❌ HATA!\\nBağlantı hatası: ' + error.message, 'error');
+                showResult('❌ FEHLER!\nVerbindungsfehler: ' + error.message, 'error');
             }
         }
         function showResult(message, type) {
@@ -1021,7 +1021,7 @@ def check_in():
         if not emp_id_input:
             return jsonify({
                 'success': False,
-                'message': '❌ HATA!\nKimlik numarası gerekli.',
+                'message': '❌FEHLER!\nIdentitätsnummer erforderlich.',
                 'type': 'error'
             }), 400
         
@@ -1030,7 +1030,7 @@ def check_in():
         except (ValueError, TypeError):
             return jsonify({
                 'success': False,
-                'message': '❌ HATA!\nGeçersiz ID formatı.',
+                'message': '❌FEHLER! Ungültiges ID-Format..',
                 'type': 'error'
             }), 400
         
@@ -1039,7 +1039,7 @@ def check_in():
         if not location:
             return jsonify({
                 'success': False,
-                'message': '❌ HATA!\nLütfen bölge seçiniz.',
+                'message': '❌ FEHLER!\nBitte wählen Sie eine Region aus.',
                 'type': 'error'
             }), 400
         
@@ -1055,7 +1055,7 @@ def check_in():
             conn.close()
             return jsonify({
                 'success': False,
-                'message': f'❌ HATA!\nID {emp_id} numaralı personel bulunamadı!',
+                'message': f'❌FEHLER!\nPersonalnummer {emp_id} nicht gefunden!',
                 'type': 'error'
             }), 404
         
@@ -1082,7 +1082,7 @@ def check_in():
                 WHERE id = %s
             """, (now_time, duration, att_id))
             
-            message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ Çalışma Süresi: {duration}\n📍 {location}'
+            message = f'👋 BIS SPÄTER!\n{emp_name}\n🕐 Ausgang: {now_time}\n⏱️ Arbeitszeiten: {duration}\n📍 {location}'
             response_type = 'success'
         else:
             # Başka bölgede açık oturum var mı?
@@ -1097,7 +1097,7 @@ def check_in():
                 conn.close()
                 return jsonify({
                     'success': False,
-                    'message': f'⚠️ DİKKAT!\n{emp_name}\n{elsewhere[0]} bölgesinde\naçık girişiniz var!\nÖnce oradan çıkış yapınız.',
+                    'message': f'⚠️ ACHTUNG!\n{emp_name}\nSie haben einen offenen Eintrag im Bereich {elsewhere[0]}!\nBitte melden Sie sich zuerst ab.',
                     'type': 'warning'
                 }), 409
             
@@ -1108,7 +1108,7 @@ def check_in():
                 VALUES (%s, %s, %s, %s, %s)
             """, (emp_db_id, emp_name, today, now_time, location))
             
-            message = f'✅ HOŞ GELDİN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}'
+            message = f'✅ Willkommen!\n{emp_name}\n🕐 Eingang: {now_time}\n📍 {location}'
             response_type = 'success'
         
         conn.commit()
@@ -1125,7 +1125,7 @@ def check_in():
         print(f"❌ Check-in error: {str(e)}")
         return jsonify({
             'success': False,
-            'message': '❌ Sunucu Hatası!\nLütfen tekrar deneyin.',
+            'message': '❌ Serverfehler! Bitte versuchen Sie es erneut..',
             'type': 'error'
         }), 500
 
@@ -1152,24 +1152,25 @@ def health():
 
 @app.errorhandler(404)
 def not_found(e):
-    return jsonify({'success': False, 'message': 'Sayfa bulunamadı'}), 404
+    return jsonify({'success': False, 'message': 'Seite nicht gefunden'}), 404
 
 @app.errorhandler(500)
 def server_error(e):
-    return jsonify({'success': False, 'message': 'Sunucu hatası'}), 500
+    return jsonify({'success': False, 'message': 'Serverfehler'}), 500
 
 # ==================== MAIN ====================
 
 if __name__ == '__main__':
-    print("🚀 Uygulama başlatılıyor...")
+    print("🚀 Die Bewerbung beginntr...")
     if init_db():
-        print("✅ Veritabanı hazır")
+        print("✅ Datenbank bereit")
     else:
-        print("⚠️  Veritabanı bağlantısında sorun olabilir")
+        print("⚠️  Möglicherweise besteht ein Problem mit der Datenbankverbindung.")
     
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
