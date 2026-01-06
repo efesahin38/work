@@ -150,7 +150,7 @@ def index():
             50% { opacity: 0.7; }
         }
 
-        .container {
+       .container {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -161,7 +161,9 @@ def index():
                 inset 0 0 30px rgba(255, 255, 255, 0.05);
             max-width: 460px;
             width: 100%;
-            overflow: hidden;
+            max-height: 90vh;        /* ← EKLE */
+            overflow-y: auto;        /* ← EKLE */
+            overflow-x: hidden;      /* ← EKLE */
             border: 1px solid rgba(124, 58, 237, 0.3);
             position: relative;
         }
@@ -761,18 +763,22 @@ def dashboard():
             box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
         }
 
-        .container {
-            background: rgba(15, 23, 42, 0.7);
+      .container {
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 32px;
-            padding: 60px 80px;
-            max-width: 900px;
-            width: 100%;
             box-shadow: 
-                0 0 40px rgba(124, 58, 237, 0.4),
-                0 20px 60px rgba(0, 0, 0, 0.3),
-                inset 0 0 20px rgba(255, 255, 255, 0.05);
+                0 0 50px rgba(124, 58, 237, 0.4),
+                0 25px 80px rgba(0, 0, 0, 0.5),
+                inset 0 0 30px rgba(255, 255, 255, 0.05);
+            max-width: 460px;
+            width: 100%;
+            max-height: 90vh;        /* ← EKLE */
+            overflow-y: auto;        /* ← EKLE */
+            overflow-x: hidden;      /* ← EKLE */
             border: 1px solid rgba(124, 58, 237, 0.3);
+            position: relative;
         }
 
         .welcome {
@@ -1168,5 +1174,6 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
