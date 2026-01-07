@@ -56,7 +56,31 @@ def init_db():
     try:
         conn = get_conn()
         cur = conn.cursor()
-        
+
+        # Employees tablosu - senin şemana tam uygun
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS employees (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
+        # Attendance tablosu
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS attendance (
+                id BIGSERIAL PRIMARY KEY,
+                employee_id INTEGER REFERENCES employees(id),
+                employee_name TEXT,
+                date TEXT,
+                start_time TEXT,
+                end_time TEXT,
+                location TEXT,
+                duration TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+
         # Users tablosu
         cur.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -64,41 +88,16 @@ def init_db():
                 email VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
                 name VARCHAR(255) NOT NULL,
-                employee_id INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        
-        # Employees tablosu
-       cur.execute('''
-    CREATE TABLE IF NOT EXISTS employees (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-''')
-        
-        # Attendance tablosu
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS attendance (
-                id SERIAL PRIMARY KEY,
-                employee_id INTEGER NOT NULL,
-                employee_name TEXT,
-                date DATE,
-                start_time TIME,
-                end_time TIME,
-                location TEXT,
-                duration TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (employee_id) REFERENCES employees(id)
-            )
-        ''')
-        
+
         conn.commit()
         cur.close()
         conn.close()
         print("✅ Tablolar başarıyla oluşturuldu/kontrol edildi")
         return True
+
     except Exception as e:
         print(f"❌ Tablo oluşturma hatası: {str(e)}")
         return False
@@ -1166,6 +1165,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
