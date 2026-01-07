@@ -4,21 +4,18 @@ from flask_cors import CORS
 import psycopg
 from datetime import datetime, timedelta
 import hashlib
-
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'change-this-in-production')
 CORS(app)
-
-
 # ==================== DATABASE CONFIG ====================
 def get_conn():
     """Veritabanı bağlantısı oluştur"""
     try:
         conn_string = os.getenv('DATABASE_URL')
-        
+       
         if not conn_string:
             raise Exception("DATABASE_URL ortam değişkeni tanımlı değil! Render Environment'ta eklediğinden emin ol.")
-        
+       
         conn = psycopg.connect(
             conn_string,
             sslmode="require",
@@ -30,11 +27,9 @@ def get_conn():
     except Exception as e:
         print(f"❌ Database connection error: {str(e)}")
         raise
-
 def hash_password(password):
     """Şifreyi hash'le"""
     return hashlib.sha256(password.encode()).hexdigest()
-
 def calculate_duration(start_str, end_str):
     """Başlangıç ve bitiş saati arasındaki süreyi hesapla"""
     try:
@@ -48,9 +43,7 @@ def calculate_duration(start_str, end_str):
         return f"{hours}h {minutes}m"
     except:
         return "Hesaplanamadı"
-
 # ==================== DATABASE INITIALIZATION ====================
-
 def init_db():
     """Veritabanı tablolarını oluştur/kontrol et"""
     try:
@@ -101,9 +94,7 @@ def init_db():
     except Exception as e:
         print(f"❌ Tablo oluşturma hatası: {str(e)}")
         return False
-
 # ==================== AUTH ROUTES ====================
-
 @app.route('/')
 def index():
     return """<!DOCTYPE html>
@@ -113,12 +104,12 @@ def index():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎯 PROSPANDO - Giriş</title>
     <style>
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
+       
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #0f172a;
@@ -130,12 +121,11 @@ def index():
             position: relative;
             overflow: hidden;
         }
-
         body::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: 
+            background:
                 radial-gradient(circle at 20% 80%, #7c3aed 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, #ec4899 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, #3b82f6 0%, transparent 40%);
@@ -143,18 +133,16 @@ def index():
             z-index: -1;
             animation: pulse 18s ease infinite;
         }
-
         @keyframes pulse {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 0.7; }
         }
-
         .container {
             background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 32px;
-            box-shadow: 
+            box-shadow:
                 0 0 50px rgba(124, 58, 237, 0.4),
                 0 25px 80px rgba(0, 0, 0, 0.5),
                 inset 0 0 30px rgba(255, 255, 255, 0.05);
@@ -164,7 +152,6 @@ def index():
             border: 1px solid rgba(124, 58, 237, 0.3);
             position: relative;
         }
-
         .header {
             background: linear-gradient(135deg, #7c3aed, #ec4899);
             padding: 60px 30px;
@@ -173,7 +160,6 @@ def index():
             position: relative;
             overflow: hidden;
         }
-
         .header::before {
             content: '';
             position: absolute;
@@ -181,17 +167,15 @@ def index():
             background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(236,72,153,0.3));
             animation: neonShift 8s ease infinite;
         }
-
         @keyframes neonShift {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
         }
-
         .header h1 {
             font-size: 56px;
             font-weight: 900;
             margin-bottom: 12px;
-            text-shadow: 
+            text-shadow:
                 0 0 20px rgba(255,255,255,0.8),
                 0 0 40px rgba(124,58,237,0.8);
             letter-spacing: 3px;
@@ -199,12 +183,10 @@ def index():
             z-index: 2;
             animation: neonGlow 2s ease-in-out infinite alternate;
         }
-
         @keyframes neonGlow {
             from { text-shadow: 0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(124,58,237,0.8); }
             to { text-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(236,72,153,0.9); }
         }
-
         .header p {
             font-size: 20px;
             opacity: 0.95;
@@ -213,11 +195,9 @@ def index():
             letter-spacing: 1px;
             text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-
         .form-container {
             padding: 50px 40px;
         }
-
         h2 {
             text-align: center;
             margin-bottom: 40px;
@@ -226,11 +206,9 @@ def index():
             font-weight: 700;
             text-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
         }
-
         .form-group {
             margin-bottom: 28px;
         }
-
         label {
             display: block;
             margin-bottom: 10px;
@@ -239,7 +217,6 @@ def index():
             font-size: 16px;
             text-shadow: 0 0 8px rgba(124, 58, 237, 0.3);
         }
-
         input {
             width: 100%;
             padding: 18px 20px;
@@ -249,25 +226,22 @@ def index():
             background: rgba(30, 41, 59, 0.8);
             color: #e2e8f0;
             transition: all 0.4s ease;
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(124, 58, 237, 0.3),
                 inset 0 0 15px rgba(0, 0, 0, 0.3);
         }
-
         input:focus {
             outline: none;
             border-color: #ec4899;
             background: rgba(51, 65, 85, 0.9);
-            box-shadow: 
+            box-shadow:
                 0 0 40px rgba(236, 72, 153, 0.6),
                 0 0 60px rgba(124, 58, 237, 0.4);
             transform: translateY(-3px);
         }
-
         input::placeholder {
             color: rgba(226, 232, 240, 0.6);
         }
-
         button {
             width: 100%;
             padding: 20px;
@@ -280,14 +254,13 @@ def index():
             cursor: pointer;
             transition: all 0.5s ease;
             margin-bottom: 20px;
-            box-shadow: 
+            box-shadow:
                 0 0 40px rgba(124, 58, 237, 0.6),
                 0 10px 30px rgba(0, 0, 0, 0.4);
             letter-spacing: 2px;
             position: relative;
             overflow: hidden;
         }
-
         button::before {
             content: '';
             position: absolute;
@@ -297,29 +270,24 @@ def index():
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: 0.7s;
         }
-
         button:hover {
             transform: translateY(-6px);
-            box-shadow: 
+            box-shadow:
                 0 0 80px rgba(236, 72, 153, 0.8),
                 0 20px 50px rgba(124, 58, 237, 0.5);
         }
-
         button:hover::before {
             left: 100%;
         }
-
         button:active {
             transform: translateY(-2px);
         }
-
         .toggle-link {
             text-align: center;
             color: #94a3b8;
             font-size: 16px;
             margin-top: 10px;
         }
-
         .toggle-link a {
             color: #ec4899;
             cursor: pointer;
@@ -328,12 +296,10 @@ def index():
             text-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
             transition: all 0.3s;
         }
-
         .toggle-link a:hover {
             color: #f472b6;
             text-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
         }
-
         .error {
             color: #fca5a5;
             font-size: 15px;
@@ -346,28 +312,23 @@ def index():
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
             backdrop-filter: blur(8px);
         }
-
         .hidden {
             display: none;
         }
-
         .form-section {
             display: none;
             opacity: 0;
             transition: opacity 0.4s ease;
         }
-
         .form-section.active {
             display: block;
             opacity: 1;
             animation: fadeIn 0.5s ease-in;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @media (max-width: 480px) {
             .container {
                 margin: 20px;
@@ -399,66 +360,53 @@ def index():
     <div class="container">
         <div class="header">
             <h1>🎯 PROSPANDO</h1>
-            <p>Personalanwesenheitssystem</p>
+            <p>Personel Yoklama Sistemi</p>
         </div>
-
         <div class="form-container">
             <div id="login-section" class="form-section active">
-                <h2>Login</h2>
-                
+                <h2>Giriş Yap</h2>
+               
                 <div class="form-group">
                     <label for="login-email">📧 Email:</label>
-                    <input type="email" id="login-email" placeholder="Ihre E-Mail-Adresse...">
+                    <input type="email" id="login-email" placeholder="Email adresiniz...">
                 </div>
-
                 <div class="form-group">
-                    <label for="login-password">🔐 Passwort:</label>
-                    <input type="password" id="login-password" placeholder="Ihr Passwort...">
+                    <label for="login-password">🔐 Şifre:</label>
+                    <input type="password" id="login-password" placeholder="Şifreniz...">
                 </div>
-
-                <button onclick="handleLogin()">Login</button>
-
+                <button onclick="handleLogin()">Giriş Yap</button>
                 <div id="login-error" class="error hidden"></div>
-
                 <div class="toggle-link">
-                    Sie haben noch kein Konto?? <a onclick="toggleForm()">Melden Sie sich an</a>
+                    Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
                 </div>
             </div>
-
             <div id="signup-section" class="form-section">
                 <h2>Kayıt Ol</h2>
-                
+               
                 <div class="form-group">
-                    <label for="signup-name">👤 Vorname Nachname:</label>
-                    <input type="text" id="signup-name" placeholder="Ihr Vor- und Nachname...">
+                    <label for="signup-name">👤 Ad Soyad:</label>
+                    <input type="text" id="signup-name" placeholder="Ad Soyadınız...">
                 </div>
-
                 <div class="form-group">
                     <label for="signup-email">📧 Email:</label>
-                    <input type="email" id="signup-email" placeholder="Ihre E-Mail-Adresse...">
+                    <input type="email" id="signup-email" placeholder="Email adresiniz...">
                 </div>
-
                 <div class="form-group">
-                    <label for="signup-password">🔐 Passwort:</label>
-                    <input type="password" id="signup-password" placeholder="Ihr Passwort...">
+                    <label for="signup-password">🔐 Şifre:</label>
+                    <input type="password" id="signup-password" placeholder="Şifreniz...">
                 </div>
-
                 <div class="form-group">
-                    <label for="signup-confirm">🔐 Passwort bestätigen:</label>
-                    <input type="password" id="signup-confirm" placeholder="Bitte geben Sie das Passwort erneut ein...">
+                    <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
+                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
                 </div>
-
-                <button onclick="handleSignup()">Melden Sie sich an</button>
-
+                <button onclick="handleSignup()">Kayıt Ol</button>
                 <div id="signup-error" class="error hidden"></div>
-
                 <div class="toggle-link">
-                    Sie haben bereits ein Konto?? <a onclick="toggleForm()">Login</a>
+                    Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         function toggleForm() {
             document.getElementById('login-section').classList.toggle('active');
@@ -466,27 +414,22 @@ def index():
             document.getElementById('login-error').classList.add('hidden');
             document.getElementById('signup-error').classList.add('hidden');
         }
-
         async function handleLogin() {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
             const errorDiv = document.getElementById('login-error');
-
             if (!email || !password) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus.!';
+                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
                 return;
             }
-
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email, password})
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
@@ -501,41 +444,34 @@ def index():
                 errorDiv.textContent = '❌ Hata: ' + error.message;
             }
         }
-
         async function handleSignup() {
             const name = document.getElementById('signup-name').value.trim();
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
             const errorDiv = document.getElementById('signup-error');
-
             if (!name || !email || !password || !confirm) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus!';
+                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
                 return;
             }
-
             if (password !== confirm) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Die Passwörter stimmen nicht überein.!';
+                errorDiv.textContent = '❌ Şifreler eşleşmiyor!';
                 return;
             }
-
             if (password.length < 6) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Das Passwort muss mindestens 6 Zeichen lang sein.!';
+                errorDiv.textContent = '❌ Şifre en az 6 karakter olmalıdır!';
                 return;
             }
-
             try {
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({name, email, password})
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
                     localStorage.setItem('user_id', data.user_id);
                     localStorage.setItem('user_name', data.user_name);
@@ -550,18 +486,15 @@ def index():
                 errorDiv.textContent = '❌ Hata: ' + error.message;
             }
         }
-
         document.getElementById('login-password').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleLogin();
         });
-
         document.getElementById('signup-confirm').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSignup();
         });
     </script>
 </body>
 </html>"""
-
 @app.route('/api/signup', methods=['POST'])
 def signup():
     try:
@@ -571,13 +504,13 @@ def signup():
         password = data.get('password', '')
 
         if not name or not email or not password:
-            return jsonify({'success': False, 'message': 'Bitte füllen Sie alle Felder aus.!'}), 400
+            return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
 
         if len(password) < 6:
-            return jsonify({'success': False, 'message': 'Das Passwort muss mindestens 6 Zeichen lang sein.!'}), 400
+            return jsonify({'success': False, 'message': 'Şifre en az 6 karakter olmalıdır!'}), 400
 
         if '@' not in email:
-            return jsonify({'success': False, 'message': 'Bitte geben Sie eine gültige E-Mail-Adresse ein.!'}), 400
+            return jsonify({'success': False, 'message': 'Geçerli bir email giriniz!'}), 400
 
         conn = get_conn()
         cur = conn.cursor()
@@ -587,7 +520,7 @@ def signup():
         if cur.fetchone():
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Diese E-Mail ist bereits registriert!'}), 400
+            return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
 
         # 2. Bu isimde bir employee var mı?
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
@@ -631,42 +564,41 @@ def signup():
 
     except Exception as e:
         print(f"❌ Signup error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Bei der Registrierung ist ein Fehler aufgetreten.'}), 500
-
+        return jsonify({'success': False, 'message': 'Kayıt sırasında bir hata oluştu.'}), 500
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
         data = request.json
         email = data.get('email', '').strip()
         password = data.get('password', '')
-        
+       
         if not email or not password:
-            return jsonify({'success': False, 'message': 'E-Mail-Adresse und Passwort erforderlich!'}), 400
-        
+            return jsonify({'success': False, 'message': 'Email ve şifre gerekli!'}), 400
+       
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT id, name, password FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
-        
+       
         if not user:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'E-Mail-Adresse oder Passwort sind falsch.!'}), 401
-        
+            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+       
         user_id, name, hashed_password = user
         if hash_password(password) != hashed_password:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'E-Mail-Adresse oder Passwort sind falsch.'}), 401
-        
+            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+       
         # Personelin ID'sini employees tablosundan al
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
         emp_result = cur.fetchone()
         employee_id = emp_result[0] if emp_result else user_id
-        
+       
         cur.close()
         conn.close()
-        
+       
         return jsonify({
             'success': True,
             'message': 'Giriş başarılı!',
@@ -677,9 +609,7 @@ def login():
     except Exception as e:
         print(f"❌ Login error: {str(e)}")
         return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
-
 # ==================== DASHBOARD PAGE ====================
-
 @app.route('/dashboard')
 def dashboard():
     return """<!DOCTYPE html>
@@ -687,7 +617,7 @@ def dashboard():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 PROSPANDO-ANRUF</title>
+    <title>🎯 PROSPANDO YOKLAMA</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -703,12 +633,11 @@ def dashboard():
             position: relative;
             overflow: hidden;
         }
-
         body::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: 
+            background:
                 radial-gradient(circle at 20% 80%, #7c3aed 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, #ec4899 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, #3b82f6 0%, transparent 40%);
@@ -716,12 +645,10 @@ def dashboard():
             z-index: -1;
             animation: pulse 15s ease infinite;
         }
-
         @keyframes pulse {
             0%, 100% { opacity: 0.4; }
             50% { opacity: 0.6; }
         }
-
         .navbar {
             position: fixed;
             top: 0;
@@ -737,8 +664,8 @@ def dashboard():
             z-index: 1000;
             border-bottom: 2px solid rgba(124, 58, 237, 0.3);
         }
-        .navbar h1 { 
-            font-size: 28px; 
+        .navbar h1 {
+            font-size: 28px;
             font-weight: 900;
             text-shadow: 0 0 15px rgba(124, 58, 237, 0.6);
         }
@@ -753,11 +680,10 @@ def dashboard():
             transition: all 0.3s;
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
         }
-        .navbar button:hover { 
+        .navbar button:hover {
             transform: translateY(-3px);
             box-shadow: 0 0 40px rgba(239, 68, 68, 0.6);
         }
-
         .container {
             background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(20px);
@@ -765,13 +691,12 @@ def dashboard():
             padding: 60px 80px;
             max-width: 900px;
             width: 100%;
-            box-shadow: 
+            box-shadow:
                 0 0 40px rgba(124, 58, 237, 0.4),
                 0 20px 60px rgba(0, 0, 0, 0.3),
                 inset 0 0 20px rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(124, 58, 237, 0.3);
         }
-
         .welcome {
             background: rgba(124, 58, 237, 0.2);
             color: white;
@@ -784,7 +709,6 @@ def dashboard():
             border: 2px solid rgba(124, 58, 237, 0.4);
             box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
         }
-
         .title {
             color: white;
             text-align: center;
@@ -794,7 +718,6 @@ def dashboard():
             text-shadow: 0 0 20px rgba(124, 58, 237, 0.6);
             letter-spacing: 2px;
         }
-
         .form-group { margin-bottom: 30px; }
         label {
             color: white;
@@ -811,7 +734,6 @@ def dashboard():
             min-width: 200px;
             box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
         }
-
         select, input {
             width: 100%;
             padding: 20px;
@@ -822,14 +744,12 @@ def dashboard():
             color: #e2e8f0;
             transition: all 0.3s;
         }
-
         select:focus, input:focus {
             outline: none;
             border-color: #ec4899;
             background: rgba(51, 65, 85, 0.9);
             box-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
         }
-
         .input-row {
             display: flex;
             gap: 25px;
@@ -837,7 +757,6 @@ def dashboard():
         }
         .input-row label { margin-bottom: 0; flex-shrink: 0; }
         .input-row input, .input-row select { flex: 1; }
-
         button.check-btn {
             width: 100%;
             padding: 35px;
@@ -854,7 +773,6 @@ def dashboard():
             position: relative;
             overflow: hidden;
         }
-
         button.check-btn::before {
             content: '';
             position: absolute;
@@ -864,16 +782,13 @@ def dashboard():
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: 0.7s;
         }
-
-        button.check-btn:hover { 
+        button.check-btn:hover {
             transform: translateY(-5px);
             box-shadow: 0 0 80px rgba(72, 187, 120, 0.6);
         }
-
         button.check-btn:hover::before {
             left: 100%;
         }
-
         .result {
             margin-top: 30px;
             padding: 35px;
@@ -892,31 +807,26 @@ def dashboard():
             transform: scale(0.9);
             transition: all 0.6s ease;
         }
-
-        .result.show {
+        .[result.show](http://result.show) {
             opacity: 1;
             transform: scale(1);
             display: flex;
         }
-
-        .result.success { 
+        .result.success {
             background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             border-color: #48bb78;
             box-shadow: 0 0 60px rgba(72, 187, 120, 0.7);
         }
-
-        .result.error { 
+        .result.error {
             background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
             border-color: #f56565;
             box-shadow: 0 0 60px rgba(245, 101, 101, 0.7);
         }
-
-        .result.warning { 
+        .result.warning {
             background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
             border-color: #ed8936;
             box-shadow: 0 0 60px rgba(237, 137, 54, 0.7);
         }
-
         @media (max-width: 768px) {
             .container { padding: 30px 20px; }
             .welcome { font-size: 24px; }
@@ -930,17 +840,17 @@ def dashboard():
 <body>
     <div class="navbar">
         <div><h1>🎯 PROSPANDO</h1></div>
-        <div><button onclick="logout()">Abmelden</button></div>
+        <div><button onclick="logout()">Çıkış Yap</button></div>
     </div>
     <div class="container">
         <div class="welcome">
-            👋 Willkommen, <span id="user-name"></span>!
+            👋 Hoş geldiniz, <span id="user-name"></span>!
         </div>
-        <div class="title">Anwesenheitssystem für Mitarbeiter</div>
+        <div class="title">PERSONEL YOKLAMA SİSTEMİ</div>
         <div class="form-group input-row">
-            <label for="location">📍 Standort:</label>
+            <label for="location">📍 BÖLGE:</label>
             <select id="location">
-                <option value="">Standort auswählen...</option>
+                <option value="">Bölge seçiniz...</option>
                 <option value="Mitte">🏢 Mitte</option>
                 <option value="Spandau">🏭 Spandau</option>
                 <option value="Steglitz">🏪 Steglitz</option>
@@ -948,7 +858,7 @@ def dashboard():
                 <option value="Charlottenburg">🛖️ Charlottenburg</option>
             </select>
         </div>
-        <button class="check-btn" onclick="checkIn()">▶ EINGANG / AUSGANG</button>
+        <button class="check-btn" onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
         <div id="result" class="result"></div>
     </div>
     <script>
@@ -967,7 +877,7 @@ def dashboard():
             const location = document.getElementById('location').value;
             const employeeId = localStorage.getItem('employee_id');
             if (!location) {
-                showResult('❌ FEHLER!\nBitte wählen Sie eine Region aus.', 'error');
+                showResult('❌ HATA!\\nLütfen bölge seçiniz.', 'error');
                 return;
             }
             try {
@@ -1004,22 +914,21 @@ def dashboard():
     </script>
 </body>
 </html>"""
-
 @app.route('/api/checkin', methods=['POST'])
 def check_in():
     try:
         data = request.json
-        
+       
         # Hem 'id' hem 'employee_id' kabul et
         emp_id_input = data.get('employee_id') or data.get('id')
-        
+       
         if not emp_id_input:
             return jsonify({
                 'success': False,
                 'message': '❌ HATA!\nKimlik numarası gerekli.',
                 'type': 'error'
             }), 400
-        
+       
         try:
             emp_id = int(emp_id_input)
         except (ValueError, TypeError):
@@ -1028,56 +937,56 @@ def check_in():
                 'message': '❌ HATA!\nGeçersiz ID formatı.',
                 'type': 'error'
             }), 400
-        
+       
         location = data.get('location', '').strip()
-        
+       
         if not location:
             return jsonify({
                 'success': False,
-                'message': '❌ FEHLER!\nBitte wählen Sie einen Standort aus.',
+                'message': '❌ HATA!\nLütfen bölge seçiniz.',
                 'type': 'error'
             }), 400
-        
+       
         conn = get_conn()
         cur = conn.cursor()
-        
+       
         # Personeli bul
         cur.execute("SELECT id, name FROM employees WHERE id = %s", (emp_id,))
         employee = cur.fetchone()
-        
+       
         if not employee:
             cur.close()
             conn.close()
             return jsonify({
                 'success': False,
-                'message': f'❌ FEHLER!\nID {emp_id} Die Personalnummer konnte nicht gefunden werden.!',
+                'message': f'❌ HATA!\nID {emp_id} numaralı personel bulunamadı!',
                 'type': 'error'
             }), 404
-        
+       
         emp_db_id, emp_name = employee
-        today = datetime.now().strftime("%Y-%m-%d")
-        now_time = datetime.now().strftime("%H:%M")
-        
+        today = [datetime.now](http://datetime.now)().strftime("%Y-%m-%d")
+        now_time = [datetime.now](http://datetime.now)().strftime("%H:%M")
+       
         # Aynı bölgede açık kayıt var mı?
         cur.execute("""
             SELECT id, start_time FROM attendance
             WHERE employee_id = %s AND date = %s AND location = %s AND end_time IS NULL
         """, (emp_db_id, today, location))
         open_record = cur.fetchone()
-        
+       
         if open_record:
             # ÇIKIŞ
             att_id, start_time = open_record
             start_str = str(start_time)[:5] if len(str(start_time)) > 5 else str(start_time)
             duration = calculate_duration(start_str, now_time)
-            
+           
             cur.execute("""
-                UPDATE attendance 
-                SET end_time = %s, duration = %s 
+                UPDATE attendance
+                SET end_time = %s, duration = %s
                 WHERE id = %s
             """, (now_time, duration, att_id))
-            
-            message = f'👋 BIS SPÄTER!\n{emp_name}\n🕐 Abmelden: {now_time}\n⏱️ Arbeitszeit: {duration}\n📍 {location}'
+           
+            message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ Çalışma Süresi: {duration}\n📍 {location}'
             response_type = 'success'
         else:
             # Başka bölgede açık oturum var mı?
@@ -1086,36 +995,36 @@ def check_in():
                 WHERE employee_id = %s AND date = %s AND end_time IS NULL
             """, (emp_db_id, today))
             elsewhere = cur.fetchone()
-            
+           
             if elsewhere:
                 cur.close()
                 conn.close()
                 return jsonify({
                     'success': False,
-                    'message': f'⚠️ Achtung!\n{emp_name}\n{elsewhere[0]} In diesem Bereich\nist ein offener Login vorhanden!\nBitte loggen Sie sich zuerst dort aus.',
+                    'message': f'⚠️ DİKKAT!\n{emp_name}\n{elsewhere[0]} bölgesinde\naçık girişiniz var!\nÖnce oradan çıkış yapınız.',
                     'type': 'warning'
                 }), 409
-            
+           
             # GİRİŞ
             cur.execute("""
-                INSERT INTO attendance 
+                INSERT INTO attendance
                 (employee_id, employee_name, date, start_time, location)
                 VALUES (%s, %s, %s, %s, %s)
             """, (emp_db_id, emp_name, today, now_time, location))
-            
-            message = f'✅ WILLKOMMEN!\n{emp_name}\n🕐 Check-in-Zeit: {now_time}\n📍 {location}'
+           
+            message = f'✅ HOŞ GELDİN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}'
             response_type = 'success'
-        
+       
         conn.commit()
         cur.close()
         conn.close()
-        
+       
         return jsonify({
             'success': True,
             'message': message,
             'type': response_type
         }), 200
-        
+       
     except Exception as e:
         print(f"❌ Check-in error: {str(e)}")
         return jsonify({
@@ -1123,14 +1032,11 @@ def check_in():
             'message': '❌ Sunucu Hatası!\nLütfen tekrar deneyin.',
             'type': 'error'
         }), 500
-
 # ==================== FAVICON & HEALTH CHECK ====================
-
 @app.route('/favicon.ico')
 def favicon():
     """Favicon 404 hatasını önle"""
     return '', 204
-
 @app.route('/health', methods=['GET'])
 def health():
     try:
@@ -1142,31 +1048,21 @@ def health():
         return jsonify({'status': 'healthy', 'database': 'connected'}), 200
     except Exception as e:
         return jsonify({'status': 'unhealthy', 'database': 'disconnected', 'error': str(e)}), 500
-
 # ==================== ERROR HANDLERS ====================
-
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({'success': False, 'message': 'Sayfa bulunamadı'}), 404
-
 @app.errorhandler(500)
 def server_error(e):
     return jsonify({'success': False, 'message': 'Sunucu hatası'}), 500
-
 # ==================== MAIN ====================
-
 if __name__ == '__main__':
     print("🚀 Uygulama başlatılıyor...")
     if init_db():
         print("✅ Veritabanı hazır")
     else:
-        print("⚠️  Veritabanı bağlantısında sorun olabilir")
-    
+        print("⚠️ Veritabanı bağlantısında sorun olabilir")
+   
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
-    app.run(host='0.0.0.0', port=port, debug=debug)
-
-
-
-
-
+    [app.run](http://app.run)(host='0.0.0.0', port=port, debug=debug)
