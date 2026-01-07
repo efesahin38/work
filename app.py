@@ -399,29 +399,29 @@ def index():
     <div class="container">
         <div class="header">
             <h1>🎯 PROSPANDO</h1>
-            <p>Personel Yoklama Sistemi</p>
+            <p>Personalanwesenheitssystem</p>
         </div>
 
         <div class="form-container">
             <div id="login-section" class="form-section active">
-                <h2>Giriş Yap</h2>
+                <h2>Login</h2>
                 
                 <div class="form-group">
                     <label for="login-email">📧 Email:</label>
-                    <input type="email" id="login-email" placeholder="Email adresiniz...">
+                    <input type="email" id="login-email" placeholder="Ihre E-Mail-Adresse...">
                 </div>
 
                 <div class="form-group">
-                    <label for="login-password">🔐 Şifre:</label>
-                    <input type="password" id="login-password" placeholder="Şifreniz...">
+                    <label for="login-password">🔐 Passwort:</label>
+                    <input type="password" id="login-password" placeholder="Ihr Passwort...">
                 </div>
 
-                <button onclick="handleLogin()">Giriş Yap</button>
+                <button onclick="handleLogin()">Login</button>
 
                 <div id="login-error" class="error hidden"></div>
 
                 <div class="toggle-link">
-                    Hesabınız yok mu? <a onclick="toggleForm()">Kayıt Ol</a>
+                    Sie haben noch kein Konto?? <a onclick="toggleForm()">Melden Sie sich an</a>
                 </div>
             </div>
 
@@ -429,31 +429,31 @@ def index():
                 <h2>Kayıt Ol</h2>
                 
                 <div class="form-group">
-                    <label for="signup-name">👤 Ad Soyad:</label>
-                    <input type="text" id="signup-name" placeholder="Ad Soyadınız...">
+                    <label for="signup-name">👤 Vorname Nachname:</label>
+                    <input type="text" id="signup-name" placeholder="Ihr Vor- und Nachname...">
                 </div>
 
                 <div class="form-group">
                     <label for="signup-email">📧 Email:</label>
-                    <input type="email" id="signup-email" placeholder="Email adresiniz...">
+                    <input type="email" id="signup-email" placeholder="Ihre E-Mail-Adresse...">
                 </div>
 
                 <div class="form-group">
-                    <label for="signup-password">🔐 Şifre:</label>
-                    <input type="password" id="signup-password" placeholder="Şifreniz...">
+                    <label for="signup-password">🔐 Passwort:</label>
+                    <input type="password" id="signup-password" placeholder="Ihr Passwort...">
                 </div>
 
                 <div class="form-group">
-                    <label for="signup-confirm">🔐 Şifreyi Onayla:</label>
-                    <input type="password" id="signup-confirm" placeholder="Şifreyi tekrar giriniz...">
+                    <label for="signup-confirm">🔐 Passwort bestätigen:</label>
+                    <input type="password" id="signup-confirm" placeholder="Bitte geben Sie das Passwort erneut ein...">
                 </div>
 
-                <button onclick="handleSignup()">Kayıt Ol</button>
+                <button onclick="handleSignup()">Melden Sie sich an</button>
 
                 <div id="signup-error" class="error hidden"></div>
 
                 <div class="toggle-link">
-                    Zaten hesabınız var mı? <a onclick="toggleForm()">Giriş Yap</a>
+                    Sie haben bereits ein Konto?? <a onclick="toggleForm()">Login</a>
                 </div>
             </div>
         </div>
@@ -474,7 +474,7 @@ def index():
 
             if (!email || !password) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus.!';
                 return;
             }
 
@@ -511,19 +511,19 @@ def index():
 
             if (!name || !email || !password || !confirm) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Lütfen tüm alanları doldurunuz!';
+                errorDiv.textContent = '❌ Bitte füllen Sie alle Felder aus!';
                 return;
             }
 
             if (password !== confirm) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Şifreler eşleşmiyor!';
+                errorDiv.textContent = '❌ Die Passwörter stimmen nicht überein.!';
                 return;
             }
 
             if (password.length < 6) {
                 errorDiv.classList.remove('hidden');
-                errorDiv.textContent = '❌ Şifre en az 6 karakter olmalıdır!';
+                errorDiv.textContent = '❌ Das Passwort muss mindestens 6 Zeichen lang sein.!';
                 return;
             }
 
@@ -571,13 +571,13 @@ def signup():
         password = data.get('password', '')
 
         if not name or not email or not password:
-            return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
+            return jsonify({'success': False, 'message': 'Bitte füllen Sie alle Felder aus.!'}), 400
 
         if len(password) < 6:
-            return jsonify({'success': False, 'message': 'Şifre en az 6 karakter olmalıdır!'}), 400
+            return jsonify({'success': False, 'message': 'Das Passwort muss mindestens 6 Zeichen lang sein.!'}), 400
 
         if '@' not in email:
-            return jsonify({'success': False, 'message': 'Geçerli bir email giriniz!'}), 400
+            return jsonify({'success': False, 'message': 'Bitte geben Sie eine gültige E-Mail-Adresse ein.!'}), 400
 
         conn = get_conn()
         cur = conn.cursor()
@@ -587,7 +587,7 @@ def signup():
         if cur.fetchone():
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
+            return jsonify({'success': False, 'message': 'Diese E-Mail ist bereits registriert!'}), 400
 
         # 2. Bu isimde bir employee var mı?
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
@@ -631,7 +631,7 @@ def signup():
 
     except Exception as e:
         print(f"❌ Signup error: {str(e)}")
-        return jsonify({'success': False, 'message': 'Kayıt sırasında bir hata oluştu.'}), 500
+        return jsonify({'success': False, 'message': 'Bei der Registrierung ist ein Fehler aufgetreten.'}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -641,7 +641,7 @@ def login():
         password = data.get('password', '')
         
         if not email or not password:
-            return jsonify({'success': False, 'message': 'Email ve şifre gerekli!'}), 400
+            return jsonify({'success': False, 'message': 'E-Mail-Adresse und Passwort erforderlich!'}), 400
         
         conn = get_conn()
         cur = conn.cursor()
@@ -651,13 +651,13 @@ def login():
         if not user:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+            return jsonify({'success': False, 'message': 'E-Mail-Adresse oder Passwort sind falsch.!'}), 401
         
         user_id, name, hashed_password = user
         if hash_password(password) != hashed_password:
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Email veya şifre yanlış!'}), 401
+            return jsonify({'success': False, 'message': 'E-Mail-Adresse oder Passwort sind falsch.'}), 401
         
         # Personelin ID'sini employees tablosundan al
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
@@ -687,7 +687,7 @@ def dashboard():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 PROSPANDO YOKLAMA</title>
+    <title>🎯 PROSPANDO-ANRUF</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -930,17 +930,17 @@ def dashboard():
 <body>
     <div class="navbar">
         <div><h1>🎯 PROSPANDO</h1></div>
-        <div><button onclick="logout()">Çıkış Yap</button></div>
+        <div><button onclick="logout()">Abmelden</button></div>
     </div>
     <div class="container">
         <div class="welcome">
-            👋 Hoş geldiniz, <span id="user-name"></span>!
+            👋 Willkommen, <span id="user-name"></span>!
         </div>
-        <div class="title">PERSONEL YOKLAMA SİSTEMİ</div>
+        <div class="title">Anwesenheitssystem für Mitarbeiter</div>
         <div class="form-group input-row">
-            <label for="location">📍 BÖLGE:</label>
+            <label for="location">📍 Standort:</label>
             <select id="location">
-                <option value="">Bölge seçiniz...</option>
+                <option value="">Standort auswählen...</option>
                 <option value="Mitte">🏢 Mitte</option>
                 <option value="Spandau">🏭 Spandau</option>
                 <option value="Steglitz">🏪 Steglitz</option>
@@ -948,7 +948,7 @@ def dashboard():
                 <option value="Charlottenburg">🛖️ Charlottenburg</option>
             </select>
         </div>
-        <button class="check-btn" onclick="checkIn()">▶ GİRİŞ / ÇIKIŞ</button>
+        <button class="check-btn" onclick="checkIn()">▶ EINGANG / AUSGANG</button>
         <div id="result" class="result"></div>
     </div>
     <script>
@@ -967,7 +967,7 @@ def dashboard():
             const location = document.getElementById('location').value;
             const employeeId = localStorage.getItem('employee_id');
             if (!location) {
-                showResult('❌ HATA!\\nLütfen bölge seçiniz.', 'error');
+                showResult('❌ FEHLER!\nBitte wählen Sie eine Region aus.', 'error');
                 return;
             }
             try {
@@ -1034,7 +1034,7 @@ def check_in():
         if not location:
             return jsonify({
                 'success': False,
-                'message': '❌ HATA!\nLütfen bölge seçiniz.',
+                'message': '❌ FEHLER!\nBitte wählen Sie einen Standort aus.',
                 'type': 'error'
             }), 400
         
@@ -1050,7 +1050,7 @@ def check_in():
             conn.close()
             return jsonify({
                 'success': False,
-                'message': f'❌ HATA!\nID {emp_id} numaralı personel bulunamadı!',
+                'message': f'❌ FEHLER!\nID {emp_id} Die Personalnummer konnte nicht gefunden werden.!',
                 'type': 'error'
             }), 404
         
@@ -1077,7 +1077,7 @@ def check_in():
                 WHERE id = %s
             """, (now_time, duration, att_id))
             
-            message = f'👋 GÖRÜŞÜRÜZ!\n{emp_name}\n🕐 Çıkış: {now_time}\n⏱️ Çalışma Süresi: {duration}\n📍 {location}'
+            message = f'👋 BIS SPÄTER!\n{emp_name}\n🕐 Abmelden: {now_time}\n⏱️ Arbeitszeit: {duration}\n📍 {location}'
             response_type = 'success'
         else:
             # Başka bölgede açık oturum var mı?
@@ -1092,7 +1092,7 @@ def check_in():
                 conn.close()
                 return jsonify({
                     'success': False,
-                    'message': f'⚠️ DİKKAT!\n{emp_name}\n{elsewhere[0]} bölgesinde\naçık girişiniz var!\nÖnce oradan çıkış yapınız.',
+                    'message': f'⚠️ Achtung!\n{emp_name}\n{elsewhere[0]} In diesem Bereich\nist ein offener Login vorhanden!\nBitte loggen Sie sich zuerst dort aus.',
                     'type': 'warning'
                 }), 409
             
@@ -1103,7 +1103,7 @@ def check_in():
                 VALUES (%s, %s, %s, %s, %s)
             """, (emp_db_id, emp_name, today, now_time, location))
             
-            message = f'✅ HOŞ GELDİN!\n{emp_name}\n🕐 Giriş: {now_time}\n📍 {location}'
+            message = f'✅ WILLKOMMEN!\n{emp_name}\n🕐 Check-in-Zeit: {now_time}\n📍 {location}'
             response_type = 'success'
         
         conn.commit()
@@ -1165,6 +1165,7 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
 
