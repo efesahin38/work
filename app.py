@@ -70,13 +70,13 @@ def init_db():
         ''')
         
         # Employees tablosu
-        cur.execute('''
-            CREATE TABLE IF NOT EXISTS employees (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(255) UNIQUE NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
+       cur.execute('''
+    CREATE TABLE IF NOT EXISTS employees (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
         
         # Attendance tablosu
         cur.execute('''
@@ -583,38 +583,38 @@ def signup():
         conn = get_conn()
         cur = conn.cursor()
 
-        # Email zaten var mı?
+        # 1. Email zaten kayıtlı mı?
         cur.execute("SELECT 1 FROM users WHERE email = %s", (email,))
         if cur.fetchone():
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
 
-        # Employee var mı?
+        # 2. Bu isimde bir employee var mı?
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
         existing_emp = cur.fetchone()
 
         if existing_emp:
+            # Aynı isim var → mevcut employee'yi kullan
             emp_id = existing_emp[0]
         else:
+            # Yeni employee oluştur: ID'yi kendimiz hesapla (max id + 1)
+            cur.execute("SELECT MAX(id) FROM employees")
+            max_id_result = cur.fetchone()
+            new_id = (max_id_result[0] or 0) + 1
+
             # Yeni employee ekle
             cur.execute(
-                "INSERT INTO employees (name) VALUES (%s) RETURNING id",
-                (name,)
+                "INSERT INTO employees (id, name) VALUES (%s, %s)",
+                (new_id, name)
             )
-            row = cur.fetchone()
-            if not row:
-                conn.rollback()
-                cur.close()
-                conn.close()
-                return jsonify({'success': False, 'message': 'Personel kaydı başarısız!'}), 500
-            emp_id = row[0]
+            emp_id = new_id
 
-        # User ekle
+        # 3. User'ı kaydet (employee_id şimdilik eklemiyoruz, sadece name ile bağlıyoruz)
         hashed_password = hash_password(password)
         cur.execute(
-            "INSERT INTO users (email, password, name, employee_id) VALUES (%s, %s, %s, %s) RETURNING id",
-            (email, hashed_password, name, emp_id)  # ← employee_id ekledim!
+            "INSERT INTO users (email, password, name) VALUES (%s, %s, %s) RETURNING id",
+            (email, hashed_password, name)
         )
         user_id = cur.fetchone()[0]
 
@@ -1166,5 +1166,6 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
