@@ -568,62 +568,60 @@ def signup():
     try:
         data = request.json
         name = data.get('name', '').strip()
-        email = data.get('email', '').strip()
+        email = data.get('email', '').strip().lower()
         password = data.get('password', '')
-        
+
         if not name or not email or not password:
             return jsonify({'success': False, 'message': 'Lütfen tüm alanları doldurunuz!'}), 400
-        
+
         if len(password) < 6:
             return jsonify({'success': False, 'message': 'Şifre en az 6 karakter olmalıdır!'}), 400
-        
+
         if '@' not in email:
             return jsonify({'success': False, 'message': 'Geçerli bir email giriniz!'}), 400
-        
+
         conn = get_conn()
         cur = conn.cursor()
-        
-        # ✅ Email kontrolü
-        cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+
+        # Email zaten var mı?
+        cur.execute("SELECT 1 FROM users WHERE email = %s", (email,))
         if cur.fetchone():
             cur.close()
             conn.close()
             return jsonify({'success': False, 'message': 'Bu email zaten kayıtlı!'}), 400
-        
-        # ✅ İsim kontrolü - KATILIR
+
+        # Employee var mı?
         cur.execute("SELECT id FROM employees WHERE name = %s", (name,))
         existing_emp = cur.fetchone()
-        
+
         if existing_emp:
-            # İsim zaten var - email'i kontrol et
             emp_id = existing_emp[0]
-            cur.execute("SELECT email FROM users WHERE email = %s AND name = %s", (email, name))
-            if cur.fetchone():
-                cur.close()
-                conn.close()
-                return jsonify({'success': False, 'message': 'Bu kullanıcı zaten kayıtlı!'}), 400
-            # Aynı isim, farklı email → Seçime bırak
-            # return jsonify({'success': False, 'message': 'Bu isim zaten sistemde var! Farklı bir isim kullanınız.'}), 400
         else:
-            # Yeni employee oluştur
+            # Yeni employee ekle
             cur.execute(
                 "INSERT INTO employees (name) VALUES (%s) RETURNING id",
                 (name,)
             )
-            emp_id = cur.fetchone()[0]
-        
-        # User oluştur
+            row = cur.fetchone()
+            if not row:
+                conn.rollback()
+                cur.close()
+                conn.close()
+                return jsonify({'success': False, 'message': 'Personel kaydı başarısız!'}), 500
+            emp_id = row[0]
+
+        # User ekle
         hashed_password = hash_password(password)
         cur.execute(
-            "INSERT INTO users (email, password, name) VALUES (%s, %s, %s) RETURNING id",
-            (email, hashed_password, name)
+            "INSERT INTO users (email, password, name, employee_id) VALUES (%s, %s, %s, %s) RETURNING id",
+            (email, hashed_password, name, emp_id)  # ← employee_id ekledim!
         )
         user_id = cur.fetchone()[0]
-        
+
         conn.commit()
         cur.close()
         conn.close()
-        
+
         return jsonify({
             'success': True,
             'message': 'Kayıt başarılı!',
@@ -631,10 +629,10 @@ def signup():
             'user_name': name,
             'employee_id': emp_id
         }), 201
-        
+
     except Exception as e:
         print(f"❌ Signup error: {str(e)}")
-        return jsonify({'success': False, 'message': f'Hata: {str(e)}'}), 500
+        return jsonify({'success': False, 'message': 'Kayıt sırasında bir hata oluştu.'}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -1168,4 +1166,5 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
