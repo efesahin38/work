@@ -964,8 +964,8 @@ def check_in():
             }), 404
        
         emp_db_id, emp_name = employee
-        today = [datetime.now](http://datetime.now)().strftime("%Y-%m-%d")
-        now_time = [datetime.now](http://datetime.now)().strftime("%H:%M")
+        today = datetime.now().strftime("%Y-%m-%d")
+        now_time = datetime.now().strftime("%H:%M")
        
         # Aynı bölgede açık kayıt var mı?
         cur.execute("""
@@ -1065,4 +1065,5 @@ if __name__ == '__main__':
    
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
-    [app.run](http://app.run)(host='0.0.0.0', port=port, debug=debug)
+    app.run(host='0.0.0.0', port=port, debug=debug)
+
