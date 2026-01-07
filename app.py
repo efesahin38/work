@@ -807,11 +807,11 @@ def dashboard():
             transform: scale(0.9);
             transition: all 0.6s ease;
         }
-        .[result.show](http://result.show) {
-            opacity: 1;
-            transform: scale(1);
-            display: flex;
-        }
+        .result.show {
+    opacity: 1;
+    transform: scale(1);
+    display: flex;
+}
         .result.success {
             background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             border-color: #48bb78;
@@ -1066,4 +1066,5 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'production') == 'development'
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
